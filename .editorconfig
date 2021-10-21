@@ -1,0 +1,10 @@
+﻿[*.cs]
+
+# IDE0027: Utiliser un corps d'expression pour les accesseurs
+csharp_style_expression_bodied_accessors = false
+
+# IDE0002: Simplifier l'accès au membre
+dotnet_diagnostic.IDE0002.severity = none
+
+# IDE0003: Supprimer une qualification
+dotnet_diagnostic.IDE0003.severity = none
