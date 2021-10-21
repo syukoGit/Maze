@@ -6,10 +6,10 @@
 
 namespace MazeGenerator.Type.MazeObject
 {
+    using MazeGenerator.Type.Base;
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using MazeGenerator.Type.Base;
 
     internal class MazeEnumerator : IEnumerator<MazeCell>
     {
@@ -55,9 +55,6 @@ namespace MazeGenerator.Type.MazeObject
             return true;
         }
 
-        public void Reset()
-        {
-            throw new NotImplementedException();
-        }
+        public void Reset() => throw new NotImplementedException();
     }
 }

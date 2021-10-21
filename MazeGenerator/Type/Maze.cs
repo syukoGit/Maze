@@ -6,10 +6,10 @@
 
 namespace MazeGenerator.Type
 {
-    using System.Collections;
-    using System.Collections.Generic;
     using MazeGenerator.Type.Base;
     using MazeGenerator.Type.MazeObject;
+    using System.Collections;
+    using System.Collections.Generic;
 
     public class Maze : IEnumerable<MazeCell>
     {
@@ -51,14 +51,8 @@ namespace MazeGenerator.Type
 
         public event MazeCellUpdatedHandler MazeCellUpdated;
 
-        public IEnumerator<MazeCell> GetEnumerator()
-        {
-            return new MazeEnumerator(this);
-        }
+        public IEnumerator<MazeCell> GetEnumerator() => new MazeEnumerator(this);
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return this.GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 }

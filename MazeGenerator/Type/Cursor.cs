@@ -6,13 +6,13 @@
 
 namespace MazeGenerator.Type
 {
+    using MazeGenerator.Generator;
+    using MazeGenerator.Type.Base;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using MazeGenerator.Generator;
-    using MazeGenerator.Type.Base;
 
     internal class Cursor
     {
@@ -118,7 +118,7 @@ namespace MazeGenerator.Type
 
         private EDirection GetAvailableDirections()
         {
-            var output = EDirection.None;
+            EDirection output = EDirection.None;
 
             (int x, int y) = this.coordinates;
 
@@ -145,10 +145,7 @@ namespace MazeGenerator.Type
             return output;
         }
 
-        private bool IsTheExitFound()
-        {
-            return this.coordinates == this.maze.Exit;
-        }
+        private bool IsTheExitFound() => this.coordinates == this.maze.Exit;
 
         private void Move(EDirection availableDirections)
         {

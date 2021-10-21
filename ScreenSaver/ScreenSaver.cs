@@ -6,6 +6,10 @@
 
 namespace ScreenSaver
 {
+    using MazeGenerator.Generator;
+    using MazeGenerator.Type;
+    using MazeGenerator.Type.Base;
+    using MazeGenerator.Type.MazeObject;
     using System;
     using System.Collections.Generic;
     using System.Drawing;
@@ -13,10 +17,6 @@ namespace ScreenSaver
     using System.Linq;
     using System.Threading;
     using System.Windows.Forms;
-    using MazeGenerator.Generator;
-    using MazeGenerator.Type;
-    using MazeGenerator.Type.Base;
-    using MazeGenerator.Type.MazeObject;
 
     public partial class ScreenSaver : Form
     {
@@ -34,10 +34,7 @@ namespace ScreenSaver
         {
             this.InitializeComponent();
 
-            this.mazeGenerator = new DefaultMaze(25, 25)
-            {
-                Configuration = new Configuration(10, 5),
-            };
+            this.mazeGenerator = new DefaultMaze(25, 25) { Configuration = new Configuration(10, 5) };
 
             Maze maze = this.mazeGenerator.InitMaze();
             maze.MazeCellUpdated += this.Maze_MazeCellUpdated;
@@ -49,26 +46,26 @@ namespace ScreenSaver
         {
             (EDirection directions, (int x, int y)) = mazeCell;
 
-            graphics.FillRectangle(new SolidBrush(color), x * 2 + 1, y * 2 + 1, 1, 1);
+            graphics.FillRectangle(new SolidBrush(color), (x * 2) + 1, (y * 2) + 1, 1, 1);
 
             if (directions.HasFlag(EDirection.Down))
             {
-                graphics.FillRectangle(new SolidBrush(color), x * 2 + 1, y * 2 + 2, 1, 1);
+                graphics.FillRectangle(new SolidBrush(color), (x * 2) + 1, (y * 2) + 2, 1, 1);
             }
 
             if (directions.HasFlag(EDirection.Left))
             {
-                graphics.FillRectangle(new SolidBrush(color), x * 2, y * 2 + 1, 1, 1);
+                graphics.FillRectangle(new SolidBrush(color), x * 2, (y * 2) + 1, 1, 1);
             }
 
             if (directions.HasFlag(EDirection.Right))
             {
-                graphics.FillRectangle(new SolidBrush(color), x * 2 + 2, y * 2 + 1, 1, 1);
+                graphics.FillRectangle(new SolidBrush(color), (x * 2) + 2, (y * 2) + 1, 1, 1);
             }
 
             if (directions.HasFlag(EDirection.Top))
             {
-                graphics.FillRectangle(new SolidBrush(color), x * 2 + 1, y * 2, 1, 1);
+                graphics.FillRectangle(new SolidBrush(color), (x * 2) + 1, y * 2, 1, 1);
             }
         }
 
@@ -86,10 +83,7 @@ namespace ScreenSaver
             this.Invalidate();
         }
 
-        private void Maze_MazeCellUpdated(object sender, MazeCellUpdatedEventArgs args)
-        {
-            this.Invalidate();
-        }
+        private void Maze_MazeCellUpdated(object sender, MazeCellUpdatedEventArgs args) => this.Invalidate();
 
         private void ScreenSaver_KeyPress(object sender, KeyPressEventArgs e)
         {
@@ -107,12 +101,12 @@ namespace ScreenSaver
             }
 
             var srcRect = new RectangleF(this.Padding.Left, this.Padding.Top, this.Width - this.Padding.Left - this.Padding.Right, this.Height - this.Padding.Top - this.Padding.Bottom);
-            var destRect = new RectangleF(0.0F, 0.0F, this.mazeGenerator.Width * 2 + 1, this.mazeGenerator.Height * 2 + 1);
+            var destRect = new RectangleF(0.0F, 0.0F, (this.mazeGenerator.Width * 2) + 1, (this.mazeGenerator.Height * 2) + 1);
 
             GraphicsContainer containerState = e.Graphics.BeginContainer(srcRect, destRect, GraphicsUnit.Pixel);
 
-            e.Graphics.FillRectangle(new SolidBrush(this.wayColor), this.mazeGenerator.Maze.Entry.X * 2, this.mazeGenerator.Maze.Entry.Y * 2 + 1, 1, 1);
-            e.Graphics.FillRectangle(new SolidBrush(this.wayColor), this.mazeGenerator.Maze.Exit.X * 2 + 2, this.mazeGenerator.Maze.Exit.Y * 2 + 1, 1, 1);
+            e.Graphics.FillRectangle(new SolidBrush(this.wayColor), this.mazeGenerator.Maze.Entry.X * 2, (this.mazeGenerator.Maze.Entry.Y * 2) + 1, 1, 1);
+            e.Graphics.FillRectangle(new SolidBrush(this.wayColor), (this.mazeGenerator.Maze.Exit.X * 2) + 2, (this.mazeGenerator.Maze.Exit.Y * 2) + 1, 1, 1);
 
             lock (this.mazeGenerator.Maze)
             {
@@ -125,7 +119,7 @@ namespace ScreenSaver
 
             if (this.drawWayToExit)
             {
-                e.Graphics.FillRectangle(new SolidBrush(this.wayToExitColor), this.mazeGenerator.Maze.Entry.X * 2, this.mazeGenerator.Maze.Entry.Y * 2 + 1, 1, 1);
+                e.Graphics.FillRectangle(new SolidBrush(this.wayToExitColor), this.mazeGenerator.Maze.Entry.X * 2, (this.mazeGenerator.Maze.Entry.Y * 2) + 1, 1, 1);
 
                 Coordinates coordinates = this.mazeGenerator.Maze.Entry;
 
@@ -145,15 +139,12 @@ namespace ScreenSaver
                     };
                 }
 
-                e.Graphics.FillRectangle(new SolidBrush(this.wayToExitColor), this.mazeGenerator.Maze.Exit.X * 2 + 1, this.mazeGenerator.Maze.Exit.Y * 2 + 1, 2, 1);
+                e.Graphics.FillRectangle(new SolidBrush(this.wayToExitColor), (this.mazeGenerator.Maze.Exit.X * 2) + 1, (this.mazeGenerator.Maze.Exit.Y * 2) + 1, 2, 1);
             }
 
             e.Graphics.EndContainer(containerState);
         }
 
-        private void ScreenSaver_Resize(object sender, EventArgs e)
-        {
-            this.Invalidate();
-        }
+        private void ScreenSaver_Resize(object sender, EventArgs e) => this.Invalidate();
     }
 }

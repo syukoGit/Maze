@@ -6,10 +6,10 @@
 
 namespace MazeGenerator.Generator
 {
+    using MazeGenerator.Type;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
-    using MazeGenerator.Type;
 
     public interface IMazeGenerator
     {

@@ -26,20 +26,11 @@ namespace MazeGenerator.Type.Base
             y = this.Y;
         }
 
-        public override bool Equals(object obj)
-        {
-            return obj is Coordinates(var x, var y) && this.X == x && this.Y == y;
-        }
+        public override bool Equals(object obj) => obj is Coordinates(var x, var y) && this.X == x && this.Y == y;
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(this.X, this.Y);
-        }
+        public override int GetHashCode() => HashCode.Combine(this.X, this.Y);
 
-        public static bool operator ==(Coordinates c1, Coordinates c2)
-        {
-            return c1 is not null && c1.Equals(c2);
-        }
+        public static bool operator ==(Coordinates c1, Coordinates c2) => c1 is not null && c1.Equals(c2);
 
         public static implicit operator Coordinates((int X, int Y) coordinates)
         {
@@ -47,14 +38,8 @@ namespace MazeGenerator.Type.Base
             return new Coordinates(x, y);
         }
 
-        public static bool operator !=(Coordinates c1, Coordinates c2)
-        {
-            return !(c1 == c2);
-        }
+        public static bool operator !=(Coordinates c1, Coordinates c2) => !(c1 == c2);
 
-        public override string ToString()
-        {
-            return $"({this.X}, {this.Y})";
-        }
+        public override string ToString() => $"({this.X}, {this.Y})";
     }
 }

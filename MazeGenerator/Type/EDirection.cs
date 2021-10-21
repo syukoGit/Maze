@@ -26,9 +26,8 @@ namespace MazeGenerator.Type
 
     public static class Extension
     {
-        public static EDirection GetOppositeDirection(this EDirection direction)
-        {
-            return direction switch
+        public static EDirection GetOppositeDirection(this EDirection direction) =>
+            direction switch
             {
                 EDirection.Down => EDirection.Top,
                 EDirection.Left => EDirection.Right,
@@ -36,13 +35,10 @@ namespace MazeGenerator.Type
                 EDirection.Top => EDirection.Down,
                 _ => EDirection.None,
             };
-        }
 
-        public static IEnumerable<EDirection> GetValues(this EDirection directions)
-        {
-            return Enum.GetValues(typeof(EDirection))
-                       .Cast<EDirection>()
-                       .Where(direction => directions.HasFlag(direction) && direction != EDirection.None);
-        }
+        public static IEnumerable<EDirection> GetValues(this EDirection directions) =>
+            Enum.GetValues(typeof(EDirection))
+                .Cast<EDirection>()
+                .Where(direction => directions.HasFlag(direction) && direction != EDirection.None);
     }
 }

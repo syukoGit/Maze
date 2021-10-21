@@ -27,14 +27,8 @@ namespace MazeGenerator.Type.Base
                                  : throw new ArgumentOutOfRangeException(nameof(value), value, "The value must be between 0 and 100");
         }
 
-        public static implicit operator Probability(int value)
-        {
-            return new Probability(value);
-        }
+        public static implicit operator Probability(int value) => new(value);
 
-        public static implicit operator int(Probability probability)
-        {
-            return probability.Value;
-        }
+        public static implicit operator int(Probability probability) => probability.Value;
     }
 }
