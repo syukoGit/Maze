@@ -189,11 +189,11 @@ namespace MazeGenerator.Type
             var c2 = new Cursor(this.factory, this.generator, this.maze, this.coordinates, this);
             c2.ExitFound += this.generator.Cursor_ExitFound;
 
-            Task t1 = this.factory.StartNew(() => { c1.Start(); });
+            Task t1 = this.factory.StartNew(() => { c1.Start(); }, TaskCreationOptions.AttachedToParent | TaskCreationOptions.RunContinuationsAsynchronously);
 
             this.cursorList.Add(t1);
 
-            Task t2 = this.factory.StartNew(() => { c2.Start(); });
+            Task t2 = this.factory.StartNew(() => { c2.Start(); }, TaskCreationOptions.AttachedToParent | TaskCreationOptions.RunContinuationsAsynchronously);
 
             this.cursorList.Add(t2);
 #if DEBUG

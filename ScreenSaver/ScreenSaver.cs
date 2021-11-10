@@ -34,7 +34,7 @@ namespace ScreenSaver
         {
             this.InitializeComponent();
 
-            this.mazeGenerator = new DefaultMaze(25, 25) { Configuration = new Configuration(10, 5) };
+            this.mazeGenerator = new DefaultMaze(100, 100) { Configuration = new Configuration(5, 5) };
 
             Maze maze = this.mazeGenerator.InitMaze();
             maze.MazeCellUpdated += this.Maze_MazeCellUpdated;
