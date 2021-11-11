@@ -6,21 +6,28 @@
 
 namespace MazeGenerator.Generator
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading;
-    using System.Threading.Tasks;
     using MazeGenerator.Type;
     using MazeGenerator.Type.Base;
+    using MazeGenerator.Type.CursorObject;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     public class DefaultMaze : IMazeGenerator
     {
+        private readonly List<Cursor> cursors = new();
+
         private readonly Random rand = new(Environment.ProcessId);
 
         public DefaultMaze(int height, int width)
         {
             this.Height = height;
             this.Width = width;
+
+            Cursor.ExitFound += this.Cursor_ExitFound;
+            Cursor.NewCursor += this.Cursor_NewCursor;
         }
 
         public Configuration Configuration { get; init; }
@@ -29,16 +36,17 @@ namespace MazeGenerator.Generator
 
         public Maze Maze { get; private set; }
 
+        public int NbEndedCursors => this.cursors.Count(c => c.State == ECursorState.Ended);
+
+        public int NbRunningCursors => this.cursors.Count(c => c.State == ECursorState.Running);
+
+        public int NbTotalCursors => this.cursors.Count;
+
+        public int NbWaitingCursors => this.cursors.Count(c => c.State == ECursorState.Waiting);
+
         public List<EDirection> WayToExit { get; private set; }
 
         public int Width { get; }
-
-        public void Cursor_ExitFound(object sender, List<EDirection> wayToExit)
-        {
-            Console.Out.WriteLine($"[Maze] Exit found by {((Cursor)sender).Id}");
-
-            this.WayToExit = wayToExit;
-        }
 
         /// <inheritdoc />
         public async Task Generate(CancellationToken token)
@@ -48,22 +56,34 @@ namespace MazeGenerator.Generator
             await factory.StartNew(() =>
                          {
                              var cursor = new Cursor(factory, this, this.Maze, this.Maze.Entry);
-                             cursor.ExitFound += this.Cursor_ExitFound;
 
                              cursor.Start();
                          }, token)
-                         .ContinueWith(_ => Console.Out.WriteLine("Maze generated"), token);
+#if DEBUG
+                         .ContinueWith(_ =>
+                         {
+                             Console.Out.WriteLine("Maze generated");
+                             Console.Out.WriteLine($"Number of used cursors : {this.NbTotalCursors}");
+                         }, token)
+#endif
+                ;
         }
 
         public Maze InitMaze()
         {
-            this.Maze = new Maze(this.Width, this.Height)
-            {
-                Entry = new Coordinates(0, this.rand.Next(this.Height)),
-                Exit = new Coordinates(this.Width - 1, this.rand.Next(this.Height)),
-            };
+            this.Maze = new Maze(this.Width, this.Height) { Entry = new Coordinates(0, this.rand.Next(this.Height)), Exit = new Coordinates(this.Width - 1, this.rand.Next(this.Height)) };
 
             return this.Maze;
         }
+
+        private void Cursor_ExitFound(object sender, List<EDirection> wayToExit)
+        {
+#if DEBUG
+            Console.Out.WriteLine($"[Maze] Exit found by {((Cursor)sender).Id}");
+#endif
+            this.WayToExit = wayToExit;
+        }
+
+        private void Cursor_NewCursor(object sender, EventArgs e) => this.cursors.Add((Cursor)sender);
     }
 }

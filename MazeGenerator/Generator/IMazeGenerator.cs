@@ -19,11 +19,17 @@ namespace MazeGenerator.Generator
 
         public Maze Maze { get; }
 
+        public int NbEndedCursors { get; }
+
+        public int NbRunningCursors { get; }
+
+        public int NbTotalCursors { get; }
+
+        public int NbWaitingCursors { get; }
+
         public List<EDirection> WayToExit { get; }
 
         public int Width { get; }
-
-        public void Cursor_ExitFound(object sender, List<EDirection> wayToExit);
 
         public Task Generate(CancellationToken token);
 

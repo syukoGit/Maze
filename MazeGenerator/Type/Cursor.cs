@@ -8,6 +8,7 @@ namespace MazeGenerator.Type
 {
     using MazeGenerator.Generator;
     using MazeGenerator.Type.Base;
+    using MazeGenerator.Type.CursorObject;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -41,6 +42,8 @@ namespace MazeGenerator.Type
             this.Id = new Random().Next(10000);
 
             this.rand = new Random(this.Id);
+
+            Cursor.NewCursor?.Invoke(this, EventArgs.Empty);
 #if DEBUG
             Console.Out.WriteLine($"[Cursor {this.Id}] New cursor created");
 #endif
@@ -53,6 +56,8 @@ namespace MazeGenerator.Type
         }
 
         public int Id { get; }
+
+        public ECursorState State { get; private set; } = ECursorState.Running;
 
         private List<EDirection> Way
         {
@@ -73,7 +78,11 @@ namespace MazeGenerator.Type
 
         public delegate void ExitFoundHandler(object sender, List<EDirection> wayToExit);
 
-        public event ExitFoundHandler ExitFound;
+        public delegate void NewCursorHandler(object sender, EventArgs e);
+
+        public static event ExitFoundHandler ExitFound;
+
+        public static event NewCursorHandler NewCursor;
 
         public void Start()
         {
@@ -83,6 +92,7 @@ namespace MazeGenerator.Type
             }
             while (this.cursorWay.Any());
 
+            this.State = ECursorState.Ended;
 #if DEBUG
             Console.Out.WriteLine($"[Cursor {this.Id}] End of cursor");
 #endif
@@ -108,11 +118,11 @@ namespace MazeGenerator.Type
 
                 if (this.IsTheExitFound())
                 {
-                    this.ExitFound?.Invoke(this, this.Way);
+                    Cursor.ExitFound?.Invoke(this, this.Way);
                     this.StepBack();
                 }
 
-                Thread.Sleep(100);
+                Thread.Sleep(50);
             }
         }
 
@@ -184,22 +194,22 @@ namespace MazeGenerator.Type
             this.cursorList.Clear();
 
             var c1 = new Cursor(this.factory, this.generator, this.maze, this.coordinates, this);
-            c1.ExitFound += this.generator.Cursor_ExitFound;
 
             var c2 = new Cursor(this.factory, this.generator, this.maze, this.coordinates, this);
-            c2.ExitFound += this.generator.Cursor_ExitFound;
 
-            Task t1 = this.factory.StartNew(() => { c1.Start(); }, TaskCreationOptions.AttachedToParent | TaskCreationOptions.RunContinuationsAsynchronously);
+            Task t1 = this.factory.StartNew(() => c1.Start(), TaskCreationOptions.AttachedToParent | TaskCreationOptions.RunContinuationsAsynchronously);
 
             this.cursorList.Add(t1);
 
-            Task t2 = this.factory.StartNew(() => { c2.Start(); }, TaskCreationOptions.AttachedToParent | TaskCreationOptions.RunContinuationsAsynchronously);
+            Task t2 = this.factory.StartNew(() => c2.Start(), TaskCreationOptions.AttachedToParent | TaskCreationOptions.RunContinuationsAsynchronously);
 
             this.cursorList.Add(t2);
 #if DEBUG
             Console.Out.WriteLine($"[Cursor {this.Id}] Waiting {this.cursorList.Count} tasks ({c1.Id} & {c2.Id})");
 #endif
+            this.State = ECursorState.Waiting;
             Task.WaitAll(this.cursorList.ToArray());
+            this.State = ECursorState.Running;
 #if DEBUG
             Console.Out.WriteLine($"[Cursor {this.Id}] Continues on its way");
 #endif
