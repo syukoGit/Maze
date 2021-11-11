@@ -8,5 +8,5 @@ namespace MazeGenerator.Generator
 {
     using MazeGenerator.Type.Base;
 
-    public record Configuration(Probability ProbabilityCursorToDivide = default, uint NbMaxRunningCursor = 10);
+    public record Configuration(Probability ProbabilityCursorToDivide, uint NbMaxRunningCursor);
 }
