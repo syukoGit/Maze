@@ -108,7 +108,7 @@ namespace MazeGenerator.Type
             }
             else
             {
-                if (directions.GetValues().Count() > 1 && this.rand.Next(100) + 1 <= this.generator.Configuration.ProbabilityCursorToDivide)
+                if (directions.GetValues().Count() > 1 && this.rand.Next(100) + 1 <= this.generator.Configuration.ProbabilityCursorToDivide && this.generator.NbRunningCursors < this.generator.Configuration.NbMaxRunningCursor)
                 {
                     this.SplitCursor();
                     return;

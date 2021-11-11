@@ -36,13 +36,49 @@ namespace MazeGenerator.Generator
 
         public Maze Maze { get; private set; }
 
-        public int NbEndedCursors => this.cursors.Count(c => c.State == ECursorState.Ended);
+        public int NbEndedCursors
+        {
+            get
+            {
+                lock (this.cursors)
+                {
+                    return this.cursors.Count(c => c.State == ECursorState.Ended);
+                }
+            }
+        }
 
-        public int NbRunningCursors => this.cursors.Count(c => c.State == ECursorState.Running);
+        public int NbRunningCursors
+        {
+            get
+            {
+                lock (this.cursors)
+                {
+                    return this.cursors.Count(c => c.State == ECursorState.Running);
+                }
+            }
+        }
 
-        public int NbTotalCursors => this.cursors.Count;
+        public int NbTotalCursors
+        {
+            get
+            {
+                lock (this.cursors)
+                {
+                    return this.cursors.Count;
+                }
+            }
+        }
 
-        public int NbWaitingCursors => this.cursors.Count(c => c.State == ECursorState.Waiting);
+        public int NbWaitingCursors
+        {
+            get
+            {
+                lock (this.cursors)
+                {
+                    return this.cursors.Count(c => c.State == ECursorState.Waiting);
+                }
+            }
+        }
 
         public List<EDirection> WayToExit { get; private set; }
 
@@ -63,7 +99,7 @@ namespace MazeGenerator.Generator
                          .ContinueWith(_ =>
                          {
                              Console.Out.WriteLine("Maze generated");
-                             Console.Out.WriteLine($"Number of used cursors : {this.NbTotalCursors}");
+                             Console.Out.WriteLine($"Number of cursors used : {this.NbTotalCursors}");
                          }, token)
 #endif
                 ;
@@ -84,6 +120,12 @@ namespace MazeGenerator.Generator
             this.WayToExit = wayToExit;
         }
 
-        private void Cursor_NewCursor(object sender, EventArgs e) => this.cursors.Add((Cursor)sender);
+        private void Cursor_NewCursor(object sender, EventArgs e)
+        {
+            lock (this.cursors)
+            {
+                this.cursors.Add((Cursor)sender);
+            }
+        }
     }
 }

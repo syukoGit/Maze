@@ -21,10 +21,9 @@ namespace MazeGenerator.Type.Base
         {
             get => this.value;
 
-            init =>
-                this.value = value >= 0 && value <= 100
-                                 ? value
-                                 : throw new ArgumentOutOfRangeException(nameof(value), value, "The value must be between 0 and 100");
+            init => this.value = value >= 0 && value <= 100
+                                     ? value
+                                     : throw new ArgumentOutOfRangeException(nameof(value), value, "The value must be between 0 and 100");
         }
 
         public static implicit operator Probability(int value) => new(value);
