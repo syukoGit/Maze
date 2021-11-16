@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace MazeGenerator.Type
+namespace MazeGenerator.Type.Mazes
 {
     using System;
     using System.Collections.Generic;

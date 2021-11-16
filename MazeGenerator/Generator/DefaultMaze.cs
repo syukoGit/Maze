@@ -6,9 +6,9 @@
 
 namespace MazeGenerator.Generator
 {
-    using MazeGenerator.Type;
     using MazeGenerator.Type.Base;
     using MazeGenerator.Type.Cursors;
+    using MazeGenerator.Type.Mazes;
     using System;
     using System.Collections.Generic;
     using System.Linq;

@@ -8,6 +8,7 @@ namespace MazeGenerator.Type.Cursors
 {
     using MazeGenerator.Generator;
     using MazeGenerator.Type.Base;
+    using MazeGenerator.Type.Mazes;
     using System;
     using System.Collections.Generic;
     using System.Linq;

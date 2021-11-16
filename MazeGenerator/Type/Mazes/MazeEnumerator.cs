@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace MazeGenerator.Type.MazeObject
+namespace MazeGenerator.Type.Mazes
 {
     using MazeGenerator.Type.Base;
     using System;
