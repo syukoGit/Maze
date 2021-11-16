@@ -8,7 +8,7 @@ namespace MazeGenerator.Type.Base
 {
     using System;
 
-    public struct Probability
+    public readonly struct Probability
     {
         private readonly int value;
 
