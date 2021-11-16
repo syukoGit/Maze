@@ -13,7 +13,7 @@ namespace MazeGenerator.Generators
 
     public interface IMazeGenerator
     {
-        public Configuration Configuration { get; }
+        public Configuration Configuration { get; init; }
 
         public int Height { get; }
 
@@ -27,7 +27,7 @@ namespace MazeGenerator.Generators
 
         public int NbWaitingCursors { get; }
 
-        public List<EDirection> WayToExit { get; }
+        public IReadOnlyList<EDirection> WayToExit { get; }
 
         public int Width { get; }
 

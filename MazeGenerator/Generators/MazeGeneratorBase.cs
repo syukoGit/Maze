@@ -1,12 +1,11 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="DefaultMaze.cs" company="SyukoTech">
+// <copyright file="MazeGeneratorBase.cs" company="SyukoTech">
 // Copyright (c) SyukoTech. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 
 namespace MazeGenerator.Generators
 {
-    using MazeGenerator.Types.Base;
     using MazeGenerator.Types.Cursors;
     using MazeGenerator.Types.Mazes;
     using System;
@@ -15,13 +14,11 @@ namespace MazeGenerator.Generators
     using System.Threading;
     using System.Threading.Tasks;
 
-    public class DefaultMaze : IMazeGenerator
+    public abstract class MazeGeneratorBase : IMazeGenerator
     {
         private readonly List<Cursor> cursors = new();
 
-        private readonly Random rand = new(Environment.ProcessId);
-
-        public DefaultMaze(int height, int width)
+        protected MazeGeneratorBase(int height, int width)
         {
             this.Height = height;
             this.Width = width;
@@ -34,7 +31,7 @@ namespace MazeGenerator.Generators
 
         public int Height { get; }
 
-        public Maze Maze { get; private set; }
+        public Maze Maze { get; protected set; }
 
         public int NbEndedCursors
         {
@@ -80,41 +77,13 @@ namespace MazeGenerator.Generators
             }
         }
 
-        public List<EDirection> WayToExit { get; private set; }
+        public IReadOnlyList<EDirection> WayToExit { get; private set; }
 
         public int Width { get; }
 
-        /// <inheritdoc />
-        public async Task Generate(CancellationToken token)
-        {
-            var factory = new TaskFactory(token, TaskCreationOptions.PreferFairness, TaskContinuationOptions.PreferFairness, TaskScheduler.Default);
+        public abstract Task Generate(CancellationToken token);
 
-            await factory.StartNew(() =>
-                         {
-                             var cursor = new Cursor(factory, this, this.Maze, this.Maze.Entry);
-
-                             cursor.Start();
-                         }, token)
-#if DEBUG
-                         .ContinueWith(_ =>
-                         {
-                             Console.Out.WriteLine("Maze generated");
-                             Console.Out.WriteLine($"Number of cursors used : {this.NbTotalCursors}");
-                         }, token)
-#endif
-                ;
-        }
-
-        public Maze InitMaze()
-        {
-            this.Maze = new Maze(this.Width, this.Height)
-            {
-                Entry = new Coordinates(0, this.rand.Next(this.Height)),
-                Exit = new Coordinates(this.Width - 1, this.rand.Next(this.Height)),
-            };
-
-            return this.Maze;
-        }
+        public abstract Maze InitMaze();
 
         private void Cursor_ExitFound(object sender, List<EDirection> wayToExit)
         {
