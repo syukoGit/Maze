@@ -4,9 +4,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace MazeGenerator.Generator
+namespace MazeGenerator.Generators
 {
-    using MazeGenerator.Type.Base;
+    using MazeGenerator.Types.Base;
 
     public record Configuration(Probability ProbabilityCursorToDivide, uint NbMaxRunningCursor);
 }

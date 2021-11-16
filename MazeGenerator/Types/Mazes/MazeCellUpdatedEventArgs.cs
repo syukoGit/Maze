@@ -1,12 +1,10 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="MazeCell.cs" company="SyukoTech">
+// <copyright file="MazeCellUpdatedEventArgs.cs" company="SyukoTech">
 // Copyright (c) SyukoTech. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace MazeGenerator.Type.Mazes
+namespace MazeGenerator.Types.Mazes
 {
-    using MazeGenerator.Type.Base;
-
-    public record MazeCell(EDirection Directions, Coordinates Coordinates);
+    public record MazeCellUpdatedEventArgs(MazeCell MazeCell);
 }

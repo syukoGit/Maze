@@ -4,11 +4,11 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace MazeGenerator.Type.Cursors
+namespace MazeGenerator.Types.Cursors
 {
-    using MazeGenerator.Generator;
-    using MazeGenerator.Type.Base;
-    using MazeGenerator.Type.Mazes;
+    using MazeGenerator.Generators;
+    using MazeGenerator.Types.Base;
+    using MazeGenerator.Types.Mazes;
     using System;
     using System.Collections.Generic;
     using System.Linq;

@@ -1,10 +1,17 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="MazeCellUpdatedEventArgs.cs" company="SyukoTech">
+// <copyright file="ECursorState.cs" company="SyukoTech">
 // Copyright (c) SyukoTech. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace MazeGenerator.Type.Mazes
+namespace MazeGenerator.Types.Cursors
 {
-    public record MazeCellUpdatedEventArgs(MazeCell MazeCell);
+    internal enum ECursorState
+    {
+        Running,
+
+        Waiting,
+
+        Ended,
+    }
 }

@@ -1,17 +1,12 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ECursorState.cs" company="SyukoTech">
+// <copyright file="MazeCell.cs" company="SyukoTech">
 // Copyright (c) SyukoTech. All rights reserved.
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace MazeGenerator.Type.Cursors
+namespace MazeGenerator.Types.Mazes
 {
-    internal enum ECursorState
-    {
-        Running,
+    using MazeGenerator.Types.Base;
 
-        Waiting,
-
-        Ended,
-    }
+    public record MazeCell(EDirection Directions, Coordinates Coordinates);
 }
