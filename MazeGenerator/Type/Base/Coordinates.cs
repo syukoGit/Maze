@@ -8,7 +8,7 @@ namespace MazeGenerator.Type.Base
 {
     using System;
 
-    public class Coordinates
+    public struct Coordinates
     {
         public Coordinates(int x, int y)
         {
@@ -30,7 +30,7 @@ namespace MazeGenerator.Type.Base
 
         public override int GetHashCode() => HashCode.Combine(this.X, this.Y);
 
-        public static bool operator ==(Coordinates c1, Coordinates c2) => c1 is not null && c1.Equals(c2);
+        public static bool operator ==(Coordinates c1, Coordinates c2) => c1.Equals(c2);
 
         public static implicit operator Coordinates((int X, int Y) coordinates)
         {

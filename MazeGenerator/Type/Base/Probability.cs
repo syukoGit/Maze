@@ -8,12 +8,13 @@ namespace MazeGenerator.Type.Base
 {
     using System;
 
-    public class Probability
+    public struct Probability
     {
         private readonly int value;
 
         private Probability(int value)
         {
+            this.value = 0;
             this.Value = value;
         }
 
