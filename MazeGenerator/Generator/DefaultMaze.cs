@@ -8,7 +8,7 @@ namespace MazeGenerator.Generator
 {
     using MazeGenerator.Type;
     using MazeGenerator.Type.Base;
-    using MazeGenerator.Type.CursorObject;
+    using MazeGenerator.Type.Cursors;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -107,7 +107,11 @@ namespace MazeGenerator.Generator
 
         public Maze InitMaze()
         {
-            this.Maze = new Maze(this.Width, this.Height) { Entry = new Coordinates(0, this.rand.Next(this.Height)), Exit = new Coordinates(this.Width - 1, this.rand.Next(this.Height)) };
+            this.Maze = new Maze(this.Width, this.Height)
+            {
+                Entry = new Coordinates(0, this.rand.Next(this.Height)),
+                Exit = new Coordinates(this.Width - 1, this.rand.Next(this.Height)),
+            };
 
             return this.Maze;
         }

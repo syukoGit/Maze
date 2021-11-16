@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace MazeGenerator.Type.CursorObject
+namespace MazeGenerator.Type.Cursors
 {
     internal enum ECursorState
     {
