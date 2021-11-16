@@ -14,21 +14,13 @@ namespace MazeGenerator.Type.Base
 
         private Probability(int value)
         {
-            this.value = 0;
-            this.Value = value;
-        }
-
-        private int Value
-        {
-            get => this.value;
-
-            init => this.value = value >= 0 && value <= 100
-                                     ? value
-                                     : throw new ArgumentOutOfRangeException(nameof(value), value, "The value must be between 0 and 100");
+            this.value = value >= 0 && value <= 100
+                ? value
+                : throw new ArgumentOutOfRangeException(nameof(value), value, "The value must be between 0 and 100");
         }
 
         public static implicit operator Probability(int value) => new(value);
 
-        public static implicit operator int(Probability probability) => probability.Value;
+        public static implicit operator int(Probability probability) => probability.value;
     }
 }
