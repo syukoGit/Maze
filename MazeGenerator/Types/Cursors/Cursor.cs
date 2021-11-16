@@ -108,7 +108,7 @@ namespace MazeGenerator.Types.Cursors
             }
             else
             {
-                if (directions.GetValues().Count() > 1 && this.rand.Next(100) + 1 <= this.generator.Configuration.ProbabilityCursorToDivide && this.generator.NbRunningCursors < this.generator.Configuration.NbMaxRunningCursor)
+                if (directions.GetValues().Count() > 1 && this.rand.Next(100) + 1 <= this.generator.Configuration.ProbabilityCursorToSplit && this.generator.NbRunningCursors < this.generator.Configuration.NbMaxRunningCursor)
                 {
                     this.SplitCursor();
                     return;
@@ -122,7 +122,7 @@ namespace MazeGenerator.Types.Cursors
                     this.StepBack();
                 }
 
-                Thread.Sleep(50);
+                Thread.Sleep((int)this.generator.Configuration.WaitingTimeCursorMs);
             }
         }
 
