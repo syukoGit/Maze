@@ -18,7 +18,9 @@ namespace MazeGenerator.Generators
     public abstract class MazeGeneratorBase : IMazeGenerator
     {
         private readonly List<Cursor> cursors = new();
-
+#if DEBUG
+        private readonly DebugMode.DebugConsole debugConsole = new();
+#endif
         protected MazeGeneratorBase(int height, int width)
         {
             this.Height = height;
@@ -26,6 +28,13 @@ namespace MazeGenerator.Generators
 
             Cursor.ExitFound += this.Cursor_ExitFound;
             Cursor.NewCursor += this.Cursor_NewCursor;
+        }
+
+        ~MazeGeneratorBase()
+        {
+#if DEBUG
+            debugConsole.Dispose();
+#endif
         }
 
         public Configuration Configuration { get; init; }
