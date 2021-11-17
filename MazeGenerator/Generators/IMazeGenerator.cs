@@ -6,6 +6,7 @@
 
 namespace MazeGenerator.Generators
 {
+    using MazeGenerator.Types;
     using MazeGenerator.Types.Mazes;
     using System.Collections.Generic;
     using System.Threading;
