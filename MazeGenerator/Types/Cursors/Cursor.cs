@@ -176,8 +176,8 @@ namespace MazeGenerator.Types.Cursors
             {
                 if (this.maze[nextX, nextY] == EDirection.None)
                 {
-                    this.maze[this.coordinates.X, this.coordinates.Y] |= nextDirection;
-                    this.maze[nextX, nextY] |= nextDirection.GetOppositeDirection();
+                    this.maze.AddDirection(this.coordinates, nextDirection, this);
+                    this.maze.AddDirection((nextX, nextY), nextDirection.GetOppositeDirection(), this);
                 }
                 else
                 {

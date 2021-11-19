@@ -7,6 +7,7 @@
 namespace MazeGenerator.Types.Mazes
 {
     using MazeGenerator.Types.Base;
+    using MazeGenerator.Types.Cursors;
     using System.Collections;
     using System.Collections.Generic;
 
@@ -28,21 +29,7 @@ namespace MazeGenerator.Types.Mazes
 
         public int Height { get; }
 
-        public EDirection this[int x, int y]
-        {
-            get => this.maze[x, y];
-
-            set
-            {
-                if (this.maze[x, y] == value)
-                {
-                    return;
-                }
-
-                this.maze[x, y] = value;
-                this.MazeCellUpdated?.Invoke(this, new MazeCellUpdatedEventArgs(new MazeCell(value, (x, y))));
-            }
-        }
+        public EDirection this[int x, int y] => this.maze[x, y];
 
         public int Width { get; }
 
@@ -53,5 +40,17 @@ namespace MazeGenerator.Types.Mazes
         public IEnumerator<MazeCell> GetEnumerator() => new MazeEnumerator(this);
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+
+        internal void AddDirection(Coordinates coordinates, EDirection direction, Cursor cursor)
+        {
+            (int x, int y) = coordinates;
+            if (this.maze[x, y].HasFlag(direction))
+            {
+                return;
+            }
+
+            this.maze[x, y] |= direction;
+            this.MazeCellUpdated?.Invoke(this, new MazeCellUpdatedEventArgs(new MazeCell(direction, (x, y)), cursor.Id));
+        }
     }
 }

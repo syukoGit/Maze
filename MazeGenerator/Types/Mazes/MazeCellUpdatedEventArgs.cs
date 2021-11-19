@@ -6,5 +6,7 @@
 
 namespace MazeGenerator.Types.Mazes
 {
-    public record MazeCellUpdatedEventArgs(MazeCell MazeCell);
+    using MazeGenerator.Types.Cursors;
+
+    public record MazeCellUpdatedEventArgs(MazeCell MazeCell, int CursorId);
 }
