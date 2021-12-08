@@ -18,9 +18,7 @@ namespace MazeGenerator.Generators
     public abstract class MazeGeneratorBase : IMazeGenerator
     {
         private readonly List<Cursor> cursors = new();
-#if DEBUG
-        private readonly DebugMode.DebugConsole debugConsole = new();
-#endif
+
         protected MazeGeneratorBase(int height, int width)
         {
             this.Height = height;
@@ -28,16 +26,10 @@ namespace MazeGenerator.Generators
 
             Cursor.ExitFound += this.Cursor_ExitFound;
             Cursor.NewCursor += this.Cursor_NewCursor;
+            Cursor.StateChanged += this.Cursor_StateChanged;
         }
 
-        ~MazeGeneratorBase()
-        {
-#if DEBUG
-            debugConsole.Dispose();
-#endif
-        }
-
-        public Configuration Configuration { get; init; }
+        public Configuration Configuration { get; init; } = new();
 
         public int Height { get; }
 
@@ -91,6 +83,8 @@ namespace MazeGenerator.Generators
 
         public int Width { get; }
 
+        public event IMazeGenerator.CursorStateChangedHandler CursorStateChanged;
+
         public abstract Task Generate(CancellationToken token);
 
         public abstract Maze InitMaze();
@@ -108,6 +102,14 @@ namespace MazeGenerator.Generators
             lock (this.cursors)
             {
                 this.cursors.Add((Cursor)sender);
+            }
+        }
+
+        private void Cursor_StateChanged(object sender, ECursorState state)
+        {
+            if (sender is Cursor cursor)
+            {
+                this.CursorStateChanged?.Invoke(cursor.Id, EventArgs.Empty);
             }
         }
     }

@@ -15,7 +15,7 @@ namespace MazeGenerator.Types.Cursors
     using System.Threading;
     using System.Threading.Tasks;
 
-    internal class Cursor
+    public class Cursor
     {
         private readonly List<Task> cursorList = new();
 
@@ -32,6 +32,8 @@ namespace MazeGenerator.Types.Cursors
         private readonly Random rand;
 
         private Coordinates coordinates;
+
+        private ECursorState state = ECursorState.Running;
 
         public Cursor(TaskFactory factory, IMazeGenerator generator, Maze maze, Coordinates coordinates)
         {
@@ -57,7 +59,17 @@ namespace MazeGenerator.Types.Cursors
 
         public int Id { get; }
 
-        public ECursorState State { get; private set; } = ECursorState.Running;
+        public ECursorState State
+        {
+            get => this.state;
+
+            private set
+            {
+                this.state = value;
+
+                Cursor.StateChanged?.Invoke(this, value);
+            }
+        }
 
         private List<EDirection> Way
         {
@@ -80,9 +92,13 @@ namespace MazeGenerator.Types.Cursors
 
         public delegate void NewCursorHandler(object sender, EventArgs e);
 
+        public delegate void StateChangedHandler(object sender, ECursorState state);
+
         public static event ExitFoundHandler ExitFound;
 
         public static event NewCursorHandler NewCursor;
+
+        public static event StateChangedHandler StateChanged;
 
         public void Start()
         {
