@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="MazeDisplay.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="DebugMazeApplication" file="MazeDisplay.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
 namespace DebugMazeApplication.Controls
@@ -15,23 +15,49 @@ namespace DebugMazeApplication.Controls
     using System.Linq;
     using System.Windows.Forms;
 
-    public partial class MazeDisplay : UserControl
+    /// <summary>
+    ///     A control which display a maze in the course of generation or finished.
+    /// </summary>
+    public sealed partial class MazeDisplay : UserControl
     {
-        private readonly Dictionary<int, Color> cursorColor = new();
+        /// <summary>
+        ///     A dictionary which links each cursor to a color.
+        ///     Used when the <see cref="DifferentColorForEachCursor" /> is true.
+        /// </summary>
+        private readonly Dictionary<int, Color> cursorColor = new ();
 
-        private readonly Dictionary<Coordinates, Color> mazeCellColor = new();
+        /// <summary>
+        ///     A dictionary which links each maze cell to a color.
+        /// </summary>
+        private readonly Dictionary<Coordinates, Color> mazeCellColor = new ();
 
+        /// <summary>
+        ///     The maze to be displayed.
+        /// </summary>
         private Maze maze;
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="MazeDisplay" /> class.
+        /// </summary>
         public MazeDisplay()
         {
             this.InitializeComponent();
         }
 
+        /// <summary>
+        ///     Rectangle structure that, together with the <see cref="SrcRect" /> parameter, specifies a scale transformation for
+        ///     the container.
+        /// </summary>
         private RectangleF DestRect { get; set; } = RectangleF.Empty;
 
+        /// <summary>
+        ///     Gets or sets a value indicating whether the <see cref="MazeDisplay" /> used a different color for each cursor.
+        /// </summary>
         public bool DifferentColorForEachCursor { get; set; }
 
+        /// <summary>
+        ///     Gets or sets the maze to be display.
+        /// </summary>
         public Maze Maze
         {
             get => this.maze;
@@ -57,14 +83,26 @@ namespace DebugMazeApplication.Controls
             }
         }
 
+        /// <summary>
+        ///     Rectangle structure that, together with the <see cref="DestRect" /> parameter, specifies a scale transformation for
+        ///     the container.
+        /// </summary>
         private RectangleF SrcRect { get; set; } = RectangleF.Empty;
 
+        /// <summary>
+        ///     Clear the <see cref="MazeDisplay" /> and its data.
+        /// </summary>
         public void Clear()
         {
             this.cursorColor.Clear();
             this.mazeCellColor.Clear();
         }
 
+        /// <summary>
+        ///     Draw a cell of the maze.
+        /// </summary>
+        /// <param name="graphics">The drawing surface.</param>
+        /// <param name="mazeCell">The maze cell to be draw.</param>
         private void DrawMazeCell(Graphics graphics, MazeCell mazeCell)
         {
             Color color = this.mazeCellColor.ContainsKey(mazeCell.Coordinates)
@@ -96,9 +134,15 @@ namespace DebugMazeApplication.Controls
             }
         }
 
+        /// <summary>
+        ///     Called when a maze cell is updated.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="args">A <see cref="MazeCellUpdatedEventArgs" /> which contains the update information.</param>
         private void Maze_MazeCellUpdated(object sender, MazeCellUpdatedEventArgs args)
         {
             (MazeCell mazeCell, int cursorId) = args;
+
             if (this.DifferentColorForEachCursor)
             {
                 if (!this.cursorColor.ContainsKey(cursorId))
@@ -123,6 +167,11 @@ namespace DebugMazeApplication.Controls
             graphic.EndContainer(containerState);
         }
 
+        /// <summary>
+        ///     Called when the control needs to be redrawn.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">A <see cref="PaintEventArgs" /> which contains the event information.</param>
         private void MazeDisplay_Paint(object sender, PaintEventArgs e)
         {
             if (this.InvokeRequired)
@@ -142,7 +191,7 @@ namespace DebugMazeApplication.Controls
 
                 lock (this.Maze)
                 {
-                    var mazeCells = this.Maze.Where(c => c.Directions != EDirection.None).ToList();
+                    var mazeCells = this.Maze.Where(static c => c.Directions != EDirection.None).ToList();
                     mazeCells.ForEach(c => this.DrawMazeCell(e.Graphics, c));
                 }
             }
@@ -154,6 +203,11 @@ namespace DebugMazeApplication.Controls
             e.Graphics.EndContainer(containerState);
         }
 
+        /// <summary>
+        ///     Called when the control is resize.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MazeDisplay_Resize(object sender, EventArgs e)
         {
             this.SrcRect = new RectangleF(this.Padding.Left, this.Padding.Top, this.Width - this.Padding.Left - this.Padding.Right, this.Height - this.Padding.Top - this.Padding.Bottom);

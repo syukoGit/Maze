@@ -1,7 +1,7 @@
 // -----------------------------------------------------------------------
-// <copyright file="Program.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="DebugMazeApplication" file="Program.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
 namespace DebugMazeApplication
@@ -9,6 +9,9 @@ namespace DebugMazeApplication
     using System;
     using System.Windows.Forms;
 
+    /// <summary>
+    ///     The class that contains the main entry point.
+    /// </summary>
     internal static class Program
     {
         /// <summary>

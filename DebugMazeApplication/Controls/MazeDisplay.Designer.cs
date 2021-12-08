@@ -1,7 +1,6 @@
 ﻿namespace DebugMazeApplication.Controls
 {
-
-    partial class MazeDisplay
+    sealed partial class MazeDisplay
     {
         /// <summary> 
         /// Variable nécessaire au concepteur.

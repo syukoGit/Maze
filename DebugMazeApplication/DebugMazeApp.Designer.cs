@@ -2,7 +2,7 @@
 {
     using DebugMazeApplication.Controls.CustomControls;
 
-    partial class DebugMazeApp
+    sealed partial class DebugMazeApp
     {
         /// <summary>
         ///  Required designer variable.
