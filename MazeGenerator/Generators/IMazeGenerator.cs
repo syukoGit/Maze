@@ -1,14 +1,13 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="IMazeGenerator.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="MazeGenerator" file="IMazeGenerator.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
 namespace MazeGenerator.Generators
 {
     using MazeGenerator.Types;
     using MazeGenerator.Types.Mazes;
-    using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
@@ -32,10 +31,6 @@ namespace MazeGenerator.Generators
         public IReadOnlyList<EDirection> WayToExit { get; }
 
         public int Width { get; }
-
-        public delegate void CursorStateChangedHandler(int cursorId, EventArgs e);
-
-        public event CursorStateChangedHandler CursorStateChanged;
 
         public Task Generate(CancellationToken token);
 

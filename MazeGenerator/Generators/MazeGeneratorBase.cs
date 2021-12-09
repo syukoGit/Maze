@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="MazeGeneratorBase.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="MazeGenerator" file="MazeGeneratorBase.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
 namespace MazeGenerator.Generators
@@ -17,7 +17,7 @@ namespace MazeGenerator.Generators
 
     public abstract class MazeGeneratorBase : IMazeGenerator
     {
-        private readonly List<Cursor> cursors = new();
+        private readonly List<Cursor> cursors = new ();
 
         protected MazeGeneratorBase(int height, int width)
         {
@@ -26,10 +26,9 @@ namespace MazeGenerator.Generators
 
             Cursor.ExitFound += this.Cursor_ExitFound;
             Cursor.NewCursor += this.Cursor_NewCursor;
-            Cursor.StateChanged += this.Cursor_StateChanged;
         }
 
-        public Configuration Configuration { get; init; } = new();
+        public Configuration Configuration { get; init; } = new ();
 
         public int Height { get; }
 
@@ -83,8 +82,6 @@ namespace MazeGenerator.Generators
 
         public int Width { get; }
 
-        public event IMazeGenerator.CursorStateChangedHandler CursorStateChanged;
-
         public abstract Task Generate(CancellationToken token);
 
         public abstract Maze InitMaze();
@@ -102,14 +99,6 @@ namespace MazeGenerator.Generators
             lock (this.cursors)
             {
                 this.cursors.Add((Cursor)sender);
-            }
-        }
-
-        private void Cursor_StateChanged(object sender, ECursorState state)
-        {
-            if (sender is Cursor cursor)
-            {
-                this.CursorStateChanged?.Invoke(cursor.Id, EventArgs.Empty);
             }
         }
     }
