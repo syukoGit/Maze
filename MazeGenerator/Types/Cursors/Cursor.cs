@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Cursor.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="MazeGenerator" file="Cursor.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
 namespace MazeGenerator.Types.Cursors
@@ -15,11 +15,11 @@ namespace MazeGenerator.Types.Cursors
     using System.Threading;
     using System.Threading.Tasks;
 
-    internal class Cursor
+    public class Cursor
     {
-        private readonly List<Task> cursorList = new();
+        private readonly List<Task> cursorList = new ();
 
-        private readonly Stack<EDirection> cursorWay = new();
+        private readonly Stack<EDirection> cursorWay = new ();
 
         private readonly TaskFactory factory;
 
@@ -27,19 +27,25 @@ namespace MazeGenerator.Types.Cursors
 
         private readonly Maze maze;
 
-        private readonly Cursor parent;
-
         private readonly Random rand;
 
         private Coordinates coordinates;
 
+        private ECursorState state = ECursorState.Running;
+
         public Cursor(TaskFactory factory, IMazeGenerator generator, Maze maze, Coordinates coordinates)
+            : this(factory, generator, maze, coordinates, null)
+        {
+        }
+
+        private Cursor(TaskFactory factory, IMazeGenerator generator, Maze maze, Coordinates coordinates, Cursor parent)
         {
             this.factory = factory;
             this.generator = generator;
             this.maze = maze;
             this.coordinates = coordinates;
-            this.Id = new Random().Next(10000);
+            this.Id = new Random().Next(100000);
+            this.Parent = parent;
 
             this.rand = new Random(this.Id);
 
@@ -49,15 +55,21 @@ namespace MazeGenerator.Types.Cursors
 #endif
         }
 
-        private Cursor(TaskFactory factory, IMazeGenerator generator, Maze maze, Coordinates coordinates, Cursor parent)
-            : this(factory, generator, maze, coordinates)
-        {
-            this.parent = parent;
-        }
-
         public int Id { get; }
 
-        public ECursorState State { get; private set; } = ECursorState.Running;
+        public Cursor Parent { get; }
+
+        public ECursorState State
+        {
+            get => this.state;
+
+            private set
+            {
+                this.state = value;
+
+                Cursor.StateChanged?.Invoke(this, EventArgs.Empty);
+            }
+        }
 
         private List<EDirection> Way
         {
@@ -65,9 +77,9 @@ namespace MazeGenerator.Types.Cursors
             {
                 var output = new List<EDirection>();
 
-                if (this.parent != null)
+                if (this.Parent != null)
                 {
-                    output.AddRange(this.parent.Way);
+                    output.AddRange(this.Parent.Way);
                 }
 
                 output.AddRange(this.cursorWay.Reverse());
@@ -78,11 +90,11 @@ namespace MazeGenerator.Types.Cursors
 
         public delegate void ExitFoundHandler(object sender, List<EDirection> wayToExit);
 
-        public delegate void NewCursorHandler(object sender, EventArgs e);
-
         public static event ExitFoundHandler ExitFound;
 
-        public static event NewCursorHandler NewCursor;
+        public static event EventHandler NewCursor;
+
+        public static event EventHandler StateChanged;
 
         public void Start()
         {

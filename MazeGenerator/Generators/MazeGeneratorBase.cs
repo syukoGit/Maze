@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="MazeGeneratorBase.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="MazeGenerator" file="MazeGeneratorBase.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
 namespace MazeGenerator.Generators
@@ -17,10 +17,8 @@ namespace MazeGenerator.Generators
 
     public abstract class MazeGeneratorBase : IMazeGenerator
     {
-        private readonly List<Cursor> cursors = new();
-#if DEBUG
-        private readonly DebugMode.DebugConsole debugConsole = new();
-#endif
+        private readonly List<Cursor> cursors = new ();
+
         protected MazeGeneratorBase(int height, int width)
         {
             this.Height = height;
@@ -30,14 +28,7 @@ namespace MazeGenerator.Generators
             Cursor.NewCursor += this.Cursor_NewCursor;
         }
 
-        ~MazeGeneratorBase()
-        {
-#if DEBUG
-            debugConsole.Dispose();
-#endif
-        }
-
-        public Configuration Configuration { get; init; }
+        public Configuration Configuration { get; init; } = new ();
 
         public int Height { get; }
 

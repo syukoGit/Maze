@@ -6,7 +6,7 @@
 
 namespace MazeGenerator.Types.Cursors
 {
-    internal enum ECursorState
+    public enum ECursorState
     {
         Running,
 
