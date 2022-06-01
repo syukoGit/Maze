@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-//  <copyright project="MazeGenerator" file="SplitCursor.cs" company="SyukoTech">
+//  <copyright project="MazeGenerator" file="Cursor.cs" company="SyukoTech">
 //  Copyright (c) SyukoTech. All rights reserved.
 //  </copyright>
 // -----------------------------------------------------------------------
@@ -18,7 +18,7 @@ namespace MazeGenerator.Types.Cursors
     using MazeGenerator.Types.Base;
     using MazeGenerator.Types.Mazes;
 
-    internal sealed class SplitCursor : ICursor
+    internal sealed class Cursor : ICursor
     {
         private readonly List<Task> cursorList = new ();
 
@@ -32,30 +32,26 @@ namespace MazeGenerator.Types.Cursors
 
         private readonly Random rand;
 
-        private Coordinates coordinates;
-
-        public SplitCursor(TaskFactory factory, IMazeGenerator generator, Maze maze, Coordinates coordinates)
+        public Cursor(TaskFactory factory, IMazeGenerator generator, Maze maze, Coordinates coordinates,
+                      [CanBeNull] ICursor parent = null)
         {
             this.factory = factory;
             this.generator = generator;
             this.maze = maze;
-            this.coordinates = coordinates;
+            this.Coordinates = coordinates;
+            this.Parent = parent;
             this.Id = new Random().Next(10000);
 
             this.rand = new Random(this.Id);
 
-            SplitCursor.NewCursor?.Invoke(this, EventArgs.Empty);
+            Cursor.NewCursor?.Invoke(this, EventArgs.Empty);
 #if DEBUG
             Console.Out.WriteLine($"[Cursor {this.Id}] New cursor created");
 #endif
         }
 
-        private SplitCursor(TaskFactory factory, IMazeGenerator generator, Maze maze, Coordinates coordinates,
-                            ICursor parent)
-            : this(factory, generator, maze, coordinates)
-        {
-            this.Parent = parent;
-        }
+        /// <inheritdoc />
+        public Coordinates Coordinates { get; private set; }
 
         public int Id { get; }
 
@@ -121,7 +117,7 @@ namespace MazeGenerator.Types.Cursors
 
                 if (this.IsTheExitFound())
                 {
-                    SplitCursor.ExitFound?.Invoke(this, this.Way);
+                    Cursor.ExitFound?.Invoke(this, this.Way);
                     this.StepBack();
                 }
 
@@ -133,7 +129,7 @@ namespace MazeGenerator.Types.Cursors
         {
             var output = EDirection.None;
 
-            (int x, int y) = this.coordinates;
+            (int x, int y) = this.Coordinates;
 
             if (y + 1 < this.maze.Height && this.maze[x, y + 1] == EDirection.None)
             {
@@ -160,7 +156,7 @@ namespace MazeGenerator.Types.Cursors
 
         private bool IsTheExitFound()
         {
-            return this.coordinates == this.maze.Exit;
+            return this.Coordinates == this.maze.Exit;
         }
 
         private void Move(EDirection availableDirections)
@@ -171,18 +167,18 @@ namespace MazeGenerator.Types.Cursors
 
             (int nextX, int nextY) = nextDirection switch
             {
-                EDirection.Down => (this.coordinates.X, this.coordinates.Y + 1),
-                EDirection.Left => (this.coordinates.X - 1, this.coordinates.Y),
-                EDirection.Right => (this.coordinates.X + 1, this.coordinates.Y),
-                EDirection.Top => (this.coordinates.X, this.coordinates.Y - 1),
-                _ => this.coordinates,
+                EDirection.Down => (this.Coordinates.X, this.Coordinates.Y + 1),
+                EDirection.Left => (this.Coordinates.X - 1, this.Coordinates.Y),
+                EDirection.Right => (this.Coordinates.X + 1, this.Coordinates.Y),
+                EDirection.Top => (this.Coordinates.X, this.Coordinates.Y - 1),
+                _ => this.Coordinates,
             };
 
             lock (this.maze)
             {
                 if (this.maze[nextX, nextY] == EDirection.None)
                 {
-                    this.maze.AddDirection(this.coordinates, nextDirection, this);
+                    this.maze.AddDirection(this.Coordinates, nextDirection, this);
                     this.maze.AddDirection((nextX, nextY), nextDirection.GetOppositeDirection(), this);
                 }
                 else
@@ -192,16 +188,16 @@ namespace MazeGenerator.Types.Cursors
             }
 
             this.cursorWay.Push(nextDirection);
-            this.coordinates = (nextX, nextY);
+            this.Coordinates = (nextX, nextY);
         }
 
         private void Split()
         {
             this.cursorList.Clear();
 
-            var c1 = new SplitCursor(this.factory, this.generator, this.maze, this.coordinates, this);
+            var c1 = new Cursor(this.factory, this.generator, this.maze, this.Coordinates, this);
 
-            var c2 = new SplitCursor(this.factory, this.generator, this.maze, this.coordinates, this);
+            var c2 = new Cursor(this.factory, this.generator, this.maze, this.Coordinates, this);
 
             Task t1 = this.factory.StartNew(() => c1.Start(),
                                             TaskCreationOptions.AttachedToParent
@@ -232,13 +228,13 @@ namespace MazeGenerator.Types.Cursors
                 return;
             }
 
-            this.coordinates = this.cursorWay.Pop() switch
+            this.Coordinates = this.cursorWay.Pop() switch
             {
-                EDirection.Down => (this.coordinates.X, this.coordinates.Y - 1),
-                EDirection.Left => (this.coordinates.X + 1, this.coordinates.Y),
-                EDirection.Right => (this.coordinates.X - 1, this.coordinates.Y),
-                EDirection.Top => (this.coordinates.X, this.coordinates.Y + 1),
-                _ => this.coordinates,
+                EDirection.Down => (this.Coordinates.X, this.Coordinates.Y - 1),
+                EDirection.Left => (this.Coordinates.X + 1, this.Coordinates.Y),
+                EDirection.Right => (this.Coordinates.X - 1, this.Coordinates.Y),
+                EDirection.Top => (this.Coordinates.X, this.Coordinates.Y + 1),
+                _ => this.Coordinates,
             };
         }
     }

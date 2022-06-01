@@ -19,15 +19,15 @@ namespace MazeGenerator.Generators
 
     public abstract class MazeGeneratorBase : IMazeGenerator
     {
-        private readonly List<SplitCursor> cursors = new ();
+        private readonly List<Cursor> cursors = new ();
 
         protected MazeGeneratorBase(int height, int width)
         {
             this.Height = height;
             this.Width = width;
 
-            SplitCursor.ExitFound += this.Cursor_ExitFound;
-            SplitCursor.NewCursor += this.Cursor_NewCursor;
+            Cursor.ExitFound += this.Cursor_ExitFound;
+            Cursor.NewCursor += this.Cursor_NewCursor;
         }
 
         public Configuration Configuration { get; init; }
@@ -91,7 +91,7 @@ namespace MazeGenerator.Generators
         private void Cursor_ExitFound(object sender, IReadOnlyList<EDirection> wayToExit)
         {
 #if DEBUG
-            Console.Out.WriteLine($"[Maze] Exit found by {((SplitCursor) sender).Id}");
+            Console.Out.WriteLine($"[Maze] Exit found by {((Cursor) sender).Id}");
 #endif
             this.WayToExit = wayToExit;
         }
@@ -100,7 +100,7 @@ namespace MazeGenerator.Generators
         {
             lock (this.cursors)
             {
-                this.cursors.Add((SplitCursor) sender);
+                this.cursors.Add((Cursor) sender);
             }
         }
     }

@@ -8,16 +8,17 @@ namespace MazeGenerator.API.Cursors
 {
     using System.Collections.Generic;
     using JetBrains.Annotations;
+    using MazeGenerator.Types.Base;
 
     [PublicAPI]
     public interface ICursor
     {
+        public Coordinates Coordinates { get; }
+
         public int Id { get; }
 
         [CanBeNull]
         public ICursor Parent { get; }
-
-        public ECursorState State { get; }
 
         public IReadOnlyList<EDirection> Way { get; }
     }
