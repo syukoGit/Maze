@@ -10,7 +10,6 @@ namespace MazeGenerator.API.Generators
     using System.Threading;
     using System.Threading.Tasks;
     using JetBrains.Annotations;
-    using MazeGenerator.Types;
     using MazeGenerator.Types.Mazes;
 
     [PublicAPI]

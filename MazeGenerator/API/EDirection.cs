@@ -4,13 +4,14 @@
 //  </copyright>
 // -----------------------------------------------------------------------
 
-namespace MazeGenerator.Types.Mazes
+namespace MazeGenerator.API
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using JetBrains.Annotations;
 
+    [PublicAPI]
     [Flags]
     public enum EDirection
     {

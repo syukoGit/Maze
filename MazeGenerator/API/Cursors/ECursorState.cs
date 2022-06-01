@@ -1,12 +1,12 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ECursorState.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="MazeGenerator" file="ECursorState.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
-namespace MazeGenerator.Types.Cursors
+namespace MazeGenerator.API.Cursors
 {
-    internal enum ECursorState
+    public enum ECursorState
     {
         Running,
 

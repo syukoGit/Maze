@@ -8,6 +8,7 @@ namespace MazeGenerator.Types.Mazes
 {
     using System.Collections;
     using System.Collections.Generic;
+    using MazeGenerator.API;
     using MazeGenerator.Types.Base;
     using MazeGenerator.Types.Cursors;
 
@@ -47,7 +48,7 @@ namespace MazeGenerator.Types.Mazes
             return this.GetEnumerator();
         }
 
-        internal void AddDirection(Coordinates coordinates, EDirection direction, Cursor cursor)
+        internal void AddDirection(Coordinates coordinates, EDirection direction, SplitCursor cursor)
         {
             (int x, int y) = coordinates;
 

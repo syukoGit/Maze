@@ -6,6 +6,7 @@
 
 namespace MazeGenerator.Types.Mazes
 {
+    using MazeGenerator.API;
     using MazeGenerator.Types.Base;
 
     public sealed record MazeCell(EDirection Directions, Coordinates Coordinates);

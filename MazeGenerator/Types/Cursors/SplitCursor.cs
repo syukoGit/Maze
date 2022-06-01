@@ -1,5 +1,5 @@
 ﻿// -----------------------------------------------------------------------
-//  <copyright project="MazeGenerator" file="Cursor.cs" company="SyukoTech">
+//  <copyright project="MazeGenerator" file="SplitCursor.cs" company="SyukoTech">
 //  Copyright (c) SyukoTech. All rights reserved.
 //  </copyright>
 // -----------------------------------------------------------------------
@@ -12,11 +12,13 @@ namespace MazeGenerator.Types.Cursors
     using System.Threading;
     using System.Threading.Tasks;
     using JetBrains.Annotations;
+    using MazeGenerator.API;
+    using MazeGenerator.API.Cursors;
     using MazeGenerator.API.Generators;
     using MazeGenerator.Types.Base;
     using MazeGenerator.Types.Mazes;
 
-    internal sealed class Cursor
+    internal sealed class SplitCursor : ICursor
     {
         private readonly List<Task> cursorList = new ();
 
@@ -28,13 +30,11 @@ namespace MazeGenerator.Types.Cursors
 
         private readonly Maze maze;
 
-        private readonly Cursor parent;
-
         private readonly Random rand;
 
         private Coordinates coordinates;
 
-        public Cursor(TaskFactory factory, IMazeGenerator generator, Maze maze, Coordinates coordinates)
+        public SplitCursor(TaskFactory factory, IMazeGenerator generator, Maze maze, Coordinates coordinates)
         {
             this.factory = factory;
             this.generator = generator;
@@ -44,33 +44,35 @@ namespace MazeGenerator.Types.Cursors
 
             this.rand = new Random(this.Id);
 
-            Cursor.NewCursor?.Invoke(this, EventArgs.Empty);
+            SplitCursor.NewCursor?.Invoke(this, EventArgs.Empty);
 #if DEBUG
             Console.Out.WriteLine($"[Cursor {this.Id}] New cursor created");
 #endif
         }
 
-        private Cursor(TaskFactory factory, IMazeGenerator generator, Maze maze, Coordinates coordinates,
-                       Cursor parent)
+        private SplitCursor(TaskFactory factory, IMazeGenerator generator, Maze maze, Coordinates coordinates,
+                            ICursor parent)
             : this(factory, generator, maze, coordinates)
         {
-            this.parent = parent;
+            this.Parent = parent;
         }
 
         public int Id { get; }
 
+        public ICursor Parent { get; }
+
         public ECursorState State { get; private set; } = ECursorState.Running;
 
         [NotNull]
-        private List<EDirection> Way
+        public IReadOnlyList<EDirection> Way
         {
             get
             {
                 var output = new List<EDirection>();
 
-                if (this.parent != null)
+                if (this.Parent != null)
                 {
-                    output.AddRange(this.parent.Way);
+                    output.AddRange(this.Parent.Way);
                 }
 
                 output.AddRange(this.cursorWay.Reverse());
@@ -79,13 +81,9 @@ namespace MazeGenerator.Types.Cursors
             }
         }
 
-        public delegate void ExitFoundHandler(object sender, List<EDirection> wayToExit);
+        public static event EventHandler<IReadOnlyList<EDirection>> ExitFound;
 
-        public delegate void NewCursorHandler(object sender, EventArgs e);
-
-        public static event ExitFoundHandler ExitFound;
-
-        public static event NewCursorHandler NewCursor;
+        public static event EventHandler NewCursor;
 
         public void Start()
         {
@@ -115,7 +113,7 @@ namespace MazeGenerator.Types.Cursors
                     && this.rand.Next(100) + 1 <= this.generator.Configuration.ProbabilityCursorToSplit
                     && this.generator.NbRunningCursors < this.generator.Configuration.NbMaxRunningCursor)
                 {
-                    this.SplitCursor();
+                    this.Split();
                     return;
                 }
 
@@ -123,7 +121,7 @@ namespace MazeGenerator.Types.Cursors
 
                 if (this.IsTheExitFound())
                 {
-                    Cursor.ExitFound?.Invoke(this, this.Way);
+                    SplitCursor.ExitFound?.Invoke(this, this.Way);
                     this.StepBack();
                 }
 
@@ -197,13 +195,13 @@ namespace MazeGenerator.Types.Cursors
             this.coordinates = (nextX, nextY);
         }
 
-        private void SplitCursor()
+        private void Split()
         {
             this.cursorList.Clear();
 
-            var c1 = new Cursor(this.factory, this.generator, this.maze, this.coordinates, this);
+            var c1 = new SplitCursor(this.factory, this.generator, this.maze, this.coordinates, this);
 
-            var c2 = new Cursor(this.factory, this.generator, this.maze, this.coordinates, this);
+            var c2 = new SplitCursor(this.factory, this.generator, this.maze, this.coordinates, this);
 
             Task t1 = this.factory.StartNew(() => c1.Start(),
                                             TaskCreationOptions.AttachedToParent

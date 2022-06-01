@@ -32,7 +32,7 @@ namespace MazeGenerator.Generators
 
             await factory.StartNew(() =>
                          {
-                             var cursor = new Cursor(factory, this, this.Maze, this.Maze.Entry);
+                             var cursor = new SplitCursor(factory, this, this.Maze, this.Maze.Entry);
 
                              cursor.Start();
                          }, token)
