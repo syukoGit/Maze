@@ -1,15 +1,15 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="MazeEnumerator.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="MazeGenerator" file="MazeEnumerator.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
 namespace MazeGenerator.Types.Mazes
 {
-    using MazeGenerator.Types.Base;
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using MazeGenerator.Types.Base;
 
     internal class MazeEnumerator : IEnumerator<MazeCell>
     {
@@ -40,21 +40,23 @@ namespace MazeGenerator.Types.Mazes
                 {
                     return false;
                 }
-                else
-                {
-                    this.currentCoordinates = (0, this.currentCoordinates.Y + 1);
-                }
+
+                this.currentCoordinates = (0, this.currentCoordinates.Y + 1);
             }
             else
             {
                 this.currentCoordinates = (this.currentCoordinates.X + 1, this.currentCoordinates.Y);
             }
 
-            this.Current = new MazeCell(this.maze[this.currentCoordinates.X, this.currentCoordinates.Y], this.currentCoordinates);
+            this.Current = new MazeCell(this.maze[this.currentCoordinates.X, this.currentCoordinates.Y],
+                                        this.currentCoordinates);
 
             return true;
         }
 
-        public void Reset() => throw new NotImplementedException();
+        public void Reset()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

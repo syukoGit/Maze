@@ -1,21 +1,23 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="DefaultMazeGenerator.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="MazeGenerator" file="DefaultMazeGenerator.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
 namespace MazeGenerator.Generators
 {
-    using MazeGenerator.Types.Base;
-    using MazeGenerator.Types.Cursors;
-    using MazeGenerator.Types.Mazes;
     using System;
     using System.Threading;
     using System.Threading.Tasks;
+    using JetBrains.Annotations;
+    using MazeGenerator.Types.Base;
+    using MazeGenerator.Types.Cursors;
+    using MazeGenerator.Types.Mazes;
 
+    [PublicAPI]
     public class DefaultMazeGenerator : MazeGeneratorBase
     {
-        private readonly Random rand = new(Environment.ProcessId);
+        private readonly Random rand = new (Environment.ProcessId);
 
         public DefaultMazeGenerator(int height, int width)
             : base(height, width)
@@ -25,7 +27,8 @@ namespace MazeGenerator.Generators
         /// <inheritdoc />
         public override async Task Generate(CancellationToken token)
         {
-            var factory = new TaskFactory(token, TaskCreationOptions.PreferFairness, TaskContinuationOptions.PreferFairness, TaskScheduler.Default);
+            var factory = new TaskFactory(token, TaskCreationOptions.PreferFairness,
+                                          TaskContinuationOptions.PreferFairness, TaskScheduler.Default);
 
             await factory.StartNew(() =>
                          {
@@ -43,6 +46,7 @@ namespace MazeGenerator.Generators
                 ;
         }
 
+        [NotNull]
         public override Maze InitMaze()
         {
             this.Maze = new Maze(this.Width, this.Height)

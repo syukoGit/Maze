@@ -1,23 +1,26 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="MazeGeneratorBase.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="MazeGenerator" file="MazeGeneratorBase.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
 namespace MazeGenerator.Generators
 {
-    using MazeGenerator.Types;
-    using MazeGenerator.Types.Cursors;
-    using MazeGenerator.Types.Mazes;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using MazeGenerator.API;
+    using MazeGenerator.API.Generators;
+    using MazeGenerator.Types;
+    using MazeGenerator.Types.Cursors;
+    using MazeGenerator.Types.Mazes;
 
     public abstract class MazeGeneratorBase : IMazeGenerator
     {
-        private readonly List<Cursor> cursors = new();
+        private readonly List<Cursor> cursors = new ();
+
         protected MazeGeneratorBase(int height, int width)
         {
             this.Height = height;
@@ -39,7 +42,7 @@ namespace MazeGenerator.Generators
             {
                 lock (this.cursors)
                 {
-                    return this.cursors.Count(c => c.State == ECursorState.Ended);
+                    return this.cursors.Count(static c => c.State == ECursorState.Ended);
                 }
             }
         }
@@ -50,7 +53,7 @@ namespace MazeGenerator.Generators
             {
                 lock (this.cursors)
                 {
-                    return this.cursors.Count(c => c.State == ECursorState.Running);
+                    return this.cursors.Count(static c => c.State == ECursorState.Running);
                 }
             }
         }
@@ -72,7 +75,7 @@ namespace MazeGenerator.Generators
             {
                 lock (this.cursors)
                 {
-                    return this.cursors.Count(c => c.State == ECursorState.Waiting);
+                    return this.cursors.Count(static c => c.State == ECursorState.Waiting);
                 }
             }
         }
@@ -88,7 +91,7 @@ namespace MazeGenerator.Generators
         private void Cursor_ExitFound(object sender, List<EDirection> wayToExit)
         {
 #if DEBUG
-            Console.Out.WriteLine($"[Maze] Exit found by {((Cursor)sender).Id}");
+            Console.Out.WriteLine($"[Maze] Exit found by {((Cursor) sender).Id}");
 #endif
             this.WayToExit = wayToExit;
         }
@@ -97,7 +100,7 @@ namespace MazeGenerator.Generators
         {
             lock (this.cursors)
             {
-                this.cursors.Add((Cursor)sender);
+                this.cursors.Add((Cursor) sender);
             }
         }
     }

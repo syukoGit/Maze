@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="EDirection.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="MazeGenerator" file="EDirection.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
 namespace MazeGenerator.Types.Mazes
@@ -9,6 +9,7 @@ namespace MazeGenerator.Types.Mazes
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using JetBrains.Annotations;
 
     [Flags]
     public enum EDirection
@@ -24,10 +25,11 @@ namespace MazeGenerator.Types.Mazes
         Top = 8,
     }
 
-    public static class Extension
+    internal static class Extension
     {
-        public static EDirection GetOppositeDirection(this EDirection direction) =>
-            direction switch
+        public static EDirection GetOppositeDirection(this EDirection direction)
+        {
+            return direction switch
             {
                 EDirection.Down => EDirection.Top,
                 EDirection.Left => EDirection.Right,
@@ -35,10 +37,14 @@ namespace MazeGenerator.Types.Mazes
                 EDirection.Top => EDirection.Down,
                 _ => EDirection.None,
             };
+        }
 
-        public static IEnumerable<EDirection> GetValues(this EDirection directions) =>
-            Enum.GetValues(typeof(EDirection))
-                .Cast<EDirection>()
-                .Where(direction => directions.HasFlag(direction) && direction != EDirection.None);
+        [NotNull]
+        public static IEnumerable<EDirection> GetValues(this EDirection directions)
+        {
+            return Enum.GetValues(typeof(EDirection))
+                       .Cast<EDirection>()
+                       .Where(direction => directions.HasFlag(direction) && direction != EDirection.None);
+        }
     }
 }

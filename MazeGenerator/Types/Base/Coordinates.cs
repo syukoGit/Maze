@@ -1,36 +1,46 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Coordinates.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="MazeGenerator" file="Coordinates.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
 namespace MazeGenerator.Types.Base
 {
     using System;
+    using JetBrains.Annotations;
 
     public readonly struct Coordinates
     {
-        public Coordinates(int x, int y)
+        internal Coordinates(int x, int y)
         {
             this.X = x;
             this.Y = y;
         }
 
-        public readonly int X { get; }
+        public int X { get; }
 
-        public readonly int Y { get; }
+        public int Y { get; }
 
-        public readonly void Deconstruct(out int x, out int y)
+        public void Deconstruct(out int x, out int y)
         {
             x = this.X;
             y = this.Y;
         }
 
-        public readonly override bool Equals(object obj) => obj is Coordinates(var x, var y) && this.X == x && this.Y == y;
+        public override bool Equals(object obj)
+        {
+            return obj is Coordinates(var x, var y) && this.X == x && this.Y == y;
+        }
 
-        public readonly override int GetHashCode() => HashCode.Combine(this.X, this.Y);
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(this.X, this.Y);
+        }
 
-        public static bool operator ==(Coordinates c1, Coordinates c2) => c1.Equals(c2);
+        public static bool operator ==(Coordinates c1, Coordinates c2)
+        {
+            return c1.Equals(c2);
+        }
 
         public static implicit operator Coordinates((int X, int Y) coordinates)
         {
@@ -38,8 +48,15 @@ namespace MazeGenerator.Types.Base
             return new Coordinates(x, y);
         }
 
-        public static bool operator !=(Coordinates c1, Coordinates c2) => !(c1 == c2);
+        public static bool operator !=(Coordinates c1, Coordinates c2)
+        {
+            return !(c1 == c2);
+        }
 
-        public readonly override string ToString() => $"({this.X}, {this.Y})";
+        [NotNull]
+        public override string ToString()
+        {
+            return $"({this.X}, {this.Y})";
+        }
     }
 }

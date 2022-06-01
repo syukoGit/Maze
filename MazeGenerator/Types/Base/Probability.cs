@@ -1,7 +1,7 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Probability.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="MazeGenerator" file="Probability.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
 namespace MazeGenerator.Types.Base
@@ -14,13 +14,20 @@ namespace MazeGenerator.Types.Base
 
         private Probability(int value)
         {
-            this.value = value >= 0 && value <= 100
-                ? value
-                : throw new ArgumentOutOfRangeException(nameof(value), value, "The value must be between 0 and 100");
+            this.value = value is >= 0 and <= 100
+                             ? value
+                             : throw new ArgumentOutOfRangeException(nameof(value), value,
+                                                                     "The value must be between 0 and 100");
         }
 
-        public static implicit operator Probability(int value) => new(value);
+        public static implicit operator Probability(int value)
+        {
+            return new Probability(value);
+        }
 
-        public static implicit operator int(Probability probability) => probability.value;
+        public static implicit operator int(Probability probability)
+        {
+            return probability.value;
+        }
     }
 }

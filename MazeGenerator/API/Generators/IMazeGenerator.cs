@@ -1,17 +1,19 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="IMazeGenerator.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="MazeGenerator" file="IMazeGenerator.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
-namespace MazeGenerator.Generators
+namespace MazeGenerator.API.Generators
 {
-    using MazeGenerator.Types;
-    using MazeGenerator.Types.Mazes;
     using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
+    using JetBrains.Annotations;
+    using MazeGenerator.Types;
+    using MazeGenerator.Types.Mazes;
 
+    [PublicAPI]
     public interface IMazeGenerator
     {
         public Configuration Configuration { get; init; }

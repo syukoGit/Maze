@@ -1,13 +1,15 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Configuration.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="MazeGenerator" file="Configuration.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
-namespace MazeGenerator.Types
+namespace MazeGenerator.API
 {
+    using JetBrains.Annotations;
     using MazeGenerator.Types.Base;
 
+    [PublicAPI]
     public class Configuration
     {
         public uint NbMaxRunningCursor { get; init; } = 10;

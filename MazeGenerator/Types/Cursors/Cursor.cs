@@ -1,25 +1,26 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Cursor.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="MazeGenerator" file="Cursor.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
 namespace MazeGenerator.Types.Cursors
 {
-    using MazeGenerator.Generators;
-    using MazeGenerator.Types.Base;
-    using MazeGenerator.Types.Mazes;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using JetBrains.Annotations;
+    using MazeGenerator.API.Generators;
+    using MazeGenerator.Types.Base;
+    using MazeGenerator.Types.Mazes;
 
-    internal class Cursor
+    internal sealed class Cursor
     {
-        private readonly List<Task> cursorList = new();
+        private readonly List<Task> cursorList = new ();
 
-        private readonly Stack<EDirection> cursorWay = new();
+        private readonly Stack<EDirection> cursorWay = new ();
 
         private readonly TaskFactory factory;
 
@@ -49,7 +50,8 @@ namespace MazeGenerator.Types.Cursors
 #endif
         }
 
-        private Cursor(TaskFactory factory, IMazeGenerator generator, Maze maze, Coordinates coordinates, Cursor parent)
+        private Cursor(TaskFactory factory, IMazeGenerator generator, Maze maze, Coordinates coordinates,
+                       Cursor parent)
             : this(factory, generator, maze, coordinates)
         {
             this.parent = parent;
@@ -59,6 +61,7 @@ namespace MazeGenerator.Types.Cursors
 
         public ECursorState State { get; private set; } = ECursorState.Running;
 
+        [NotNull]
         private List<EDirection> Way
         {
             get
@@ -108,7 +111,9 @@ namespace MazeGenerator.Types.Cursors
             }
             else
             {
-                if (directions.GetValues().Count() > 1 && this.rand.Next(100) + 1 <= this.generator.Configuration.ProbabilityCursorToSplit && this.generator.NbRunningCursors < this.generator.Configuration.NbMaxRunningCursor)
+                if (directions.GetValues().Count() > 1
+                    && this.rand.Next(100) + 1 <= this.generator.Configuration.ProbabilityCursorToSplit
+                    && this.generator.NbRunningCursors < this.generator.Configuration.NbMaxRunningCursor)
                 {
                     this.SplitCursor();
                     return;
@@ -122,13 +127,13 @@ namespace MazeGenerator.Types.Cursors
                     this.StepBack();
                 }
 
-                Thread.Sleep((int)this.generator.Configuration.WaitingTimeCursorMs);
+                Thread.Sleep((int) this.generator.Configuration.WaitingTimeCursorMs);
             }
         }
 
         private EDirection GetAvailableDirections()
         {
-            EDirection output = EDirection.None;
+            var output = EDirection.None;
 
             (int x, int y) = this.coordinates;
 
@@ -155,7 +160,10 @@ namespace MazeGenerator.Types.Cursors
             return output;
         }
 
-        private bool IsTheExitFound() => this.coordinates == this.maze.Exit;
+        private bool IsTheExitFound()
+        {
+            return this.coordinates == this.maze.Exit;
+        }
 
         private void Move(EDirection availableDirections)
         {
@@ -197,11 +205,15 @@ namespace MazeGenerator.Types.Cursors
 
             var c2 = new Cursor(this.factory, this.generator, this.maze, this.coordinates, this);
 
-            Task t1 = this.factory.StartNew(() => c1.Start(), TaskCreationOptions.AttachedToParent | TaskCreationOptions.RunContinuationsAsynchronously);
+            Task t1 = this.factory.StartNew(() => c1.Start(),
+                                            TaskCreationOptions.AttachedToParent
+                                            | TaskCreationOptions.RunContinuationsAsynchronously);
 
             this.cursorList.Add(t1);
 
-            Task t2 = this.factory.StartNew(() => c2.Start(), TaskCreationOptions.AttachedToParent | TaskCreationOptions.RunContinuationsAsynchronously);
+            Task t2 = this.factory.StartNew(() => c2.Start(),
+                                            TaskCreationOptions.AttachedToParent
+                                            | TaskCreationOptions.RunContinuationsAsynchronously);
 
             this.cursorList.Add(t2);
 #if DEBUG

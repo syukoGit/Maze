@@ -1,17 +1,17 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Maze.cs" company="SyukoTech">
-// Copyright (c) SyukoTech. All rights reserved.
-// </copyright>
+//  <copyright project="MazeGenerator" file="Maze.cs" company="SyukoTech">
+//  Copyright (c) SyukoTech. All rights reserved.
+//  </copyright>
 // -----------------------------------------------------------------------
 
 namespace MazeGenerator.Types.Mazes
 {
-    using MazeGenerator.Types.Base;
-    using MazeGenerator.Types.Cursors;
     using System.Collections;
     using System.Collections.Generic;
+    using MazeGenerator.Types.Base;
+    using MazeGenerator.Types.Cursors;
 
-    public class Maze : IEnumerable<MazeCell>
+    public sealed class Maze : IEnumerable<MazeCell>
     {
         private readonly EDirection[,] maze;
 
@@ -37,20 +37,29 @@ namespace MazeGenerator.Types.Mazes
 
         public event MazeCellUpdatedHandler MazeCellUpdated;
 
-        public IEnumerator<MazeCell> GetEnumerator() => new MazeEnumerator(this);
+        public IEnumerator<MazeCell> GetEnumerator()
+        {
+            return new MazeEnumerator(this);
+        }
 
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return this.GetEnumerator();
+        }
 
         internal void AddDirection(Coordinates coordinates, EDirection direction, Cursor cursor)
         {
             (int x, int y) = coordinates;
+
             if (this.maze[x, y].HasFlag(direction))
             {
                 return;
             }
 
             this.maze[x, y] |= direction;
-            this.MazeCellUpdated?.Invoke(this, new MazeCellUpdatedEventArgs(new MazeCell(direction, (x, y)), cursor.Id));
+
+            this.MazeCellUpdated?.Invoke(this,
+                                         new MazeCellUpdatedEventArgs(new MazeCell(direction, (x, y)), cursor.Id));
         }
     }
 }
