@@ -1,14 +1,9 @@
 ﻿// -----------------------------------------------------------------------
-//  <copyright project="MazeGenerator" file="IMazeGenerator.cs" company="SyukoTech">
+//  <copyright project="MazeGenerator" file="CursorAction.cs" company="SyukoTech">
 //  Copyright (c) SyukoTech. All rights reserved.
 //  </copyright>
 // -----------------------------------------------------------------------
 
-namespace MazeGenerator.Generators;
+namespace MazeGenerator.Cursors;
 
-using System.Threading.Tasks;
-
-public interface IMazeGenerator
-{
-    Task Generate(Maze maze);
-}
+public sealed record CursorAction((int X, int Y) Position, EDirection Direction);
