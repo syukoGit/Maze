@@ -40,7 +40,7 @@ public class MazeGenerationHistory : IReadOnlyList<IEnumerable<MazeGenerationAct
                 _history.Add(new ());
             }
 
-            if (!_history[i].Any(c => c.Position == action.Position && c.Direction == action.Direction))
+            if (_history[i].All(c => c.Position != action.Position || c.Direction != action.Direction))
             {
                 _history[i].Add(new (action.Position, action.Direction, cursor.Id));
             }
