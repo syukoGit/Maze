@@ -16,6 +16,6 @@ public class DefaultMazeGenerator : IMazeGenerator
     {
         var cursor = new Cursor(maze, maze.Entrance);
 
-        await cursor.Run();
+        await cursor.RunAsync();
     }
 }

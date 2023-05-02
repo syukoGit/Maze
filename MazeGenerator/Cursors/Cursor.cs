@@ -44,7 +44,7 @@ internal class Cursor
         }
     }
 
-    public Task Run()
+    public Task RunAsync()
     {
         do
         {
