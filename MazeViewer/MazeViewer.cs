@@ -83,12 +83,9 @@ public class MazeViewer : Control
             PaintCorridor(e.Graphics, generationAction.Position.X, generationAction.Position.Y, generationAction.Direction, s_mazeWayColor);
         }
 
-        if (_generationHistoryIndex >= Maze.GenerationHistory.Count)
+        if (Maze.Solution is not null && _generationHistoryIndex >= Maze.GenerationHistory.Count)
         {
-            if (Maze.Solution is not null)
-            {
-                PaintWay(e.Graphics, Maze.Entrance, Maze.Solution.Take(_solutionIndex), s_mazeSolutionColor);
-            }
+            PaintWay(e.Graphics, Maze.Entrance, Maze.Solution.Take(_solutionIndex), s_mazeSolutionColor);
         }
 
         e.Graphics.EndContainer(containerState);
