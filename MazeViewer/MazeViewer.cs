@@ -18,6 +18,8 @@ public class MazeViewer : Control
 
     private static readonly Brush s_mazeExitColor = Brushes.Red;
 
+    private static readonly Brush s_mazeSolutionColor = Brushes.Green;
+
     private static readonly Color s_mazeWallColor = Color.Black;
 
     private static readonly Brush s_mazeWayColor = Brushes.White;
@@ -26,15 +28,34 @@ public class MazeViewer : Control
 
     private int _generationHistoryIndex;
 
+    private Maze? _maze;
+
+    private int _solutionIndex;
+
     public MazeViewer()
     {
         Resize += MazeViewer_Resize;
         _updateTimer.Interval = 100;
-        _updateTimer.Tick += UpdateTimer_Tick;
-        _updateTimer.Start();
     }
 
-    public Maze? Maze { get; set; }
+    public Maze? Maze
+    {
+        get => _maze;
+
+        set
+        {
+            _updateTimer.Stop();
+
+            _updateTimer.Tick -= DrawMazeOnUpdateTimerTick;
+            _updateTimer.Tick -= DrawSolutionOnUpdateTimerTick;
+
+            _updateTimer.Tick += DrawMazeOnUpdateTimerTick;
+
+            _updateTimer.Start();
+
+            _maze = value;
+        }
+    }
 
     private Rectangle DestRect => new (Padding.Left, Padding.Top, Width - Padding.Left - Padding.Right, Height - Padding.Top - Padding.Bottom);
 
@@ -62,6 +83,14 @@ public class MazeViewer : Control
             PaintCorridor(e.Graphics, generationAction.Position.X, generationAction.Position.Y, generationAction.Direction, s_mazeWayColor);
         }
 
+        if (_generationHistoryIndex >= Maze.GenerationHistory.Count)
+        {
+            if (Maze.Solution is not null)
+            {
+                PaintWay(e.Graphics, Maze.Entrance, Maze.Solution.Take(_solutionIndex), s_mazeSolutionColor);
+            }
+        }
+
         e.Graphics.EndContainer(containerState);
     }
 
@@ -69,22 +98,22 @@ public class MazeViewer : Control
     {
         if (direction.HasFlag(EDirection.North))
         {
-            g.FillRectangle(brush, x * 2 + 1, y * 2 - 1 + 1, 1, 2);
+            g.FillRectangle(brush, x * 2 + 1, y * 2 - 2 + 1, 1, 3);
         }
 
         if (direction.HasFlag(EDirection.East))
         {
-            g.FillRectangle(brush, x * 2 + 1, y * 2 + 1, 2, 1);
+            g.FillRectangle(brush, x * 2 + 1, y * 2 + 1, 3, 1);
         }
 
         if (direction.HasFlag(EDirection.South))
         {
-            g.FillRectangle(brush, x * 2 + 1, y * 2 + 1, 1, 2);
+            g.FillRectangle(brush, x * 2 + 1, y * 2 + 1, 1, 3);
         }
 
         if (direction.HasFlag(EDirection.West))
         {
-            g.FillRectangle(brush, x * 2 - 1 + 1, y * 2 + 1, 2, 1);
+            g.FillRectangle(brush, x * 2 - 2 + 1, y * 2 + 1, 3, 1);
         }
     }
 
@@ -102,16 +131,31 @@ public class MazeViewer : Control
         g.FillRectangle(s_mazeCursorColor, cursorX, cursorY, 1, 1);
     }
 
-    private void MazeViewer_Resize(object? sender, EventArgs e)
+    private static void PaintWay(Graphics g, (int, int) startPosition, IEnumerable<EDirection> way, Brush color)
     {
-        Invalidate();
+        (int x, int y) = startPosition;
+
+        foreach (EDirection direction in way)
+        {
+            PaintCorridor(g, x, y, direction, color);
+
+            (x, y) = direction switch
+            {
+                EDirection.East => (x + 1, y),
+                EDirection.North => (x, y - 1),
+                EDirection.South => (x, y + 1),
+                EDirection.West => (x - 1, y),
+                _ => throw new NotSupportedException(),
+            };
+        }
     }
 
-    private void UpdateTimer_Tick(object? sender, EventArgs e)
+    private void DrawMazeOnUpdateTimerTick(object? sender, EventArgs e)
     {
         if (Maze?.GenerationHistory is null || _generationHistoryIndex >= Maze.GenerationHistory.Count)
         {
-            _updateTimer.Stop();
+            _updateTimer.Tick -= DrawMazeOnUpdateTimerTick;
+            _updateTimer.Tick += DrawSolutionOnUpdateTimerTick;
             return;
         }
 
@@ -134,5 +178,31 @@ public class MazeViewer : Control
         graphics.EndContainer(containerState);
 
         _generationHistoryIndex++;
+    }
+
+    private void DrawSolutionOnUpdateTimerTick(object? sender, EventArgs e)
+    {
+        if (Maze?.Solution is null || _solutionIndex > Maze.Solution.Count())
+        {
+            _updateTimer.Stop();
+            return;
+        }
+
+        Graphics graphics = CreateGraphics();
+
+        GraphicsContainer containerState = graphics.BeginContainer(DestRect, SrcRect, GraphicsUnit.Pixel);
+
+        IEnumerable<EDirection> corridorsToPaint = Maze.Solution.Take(_solutionIndex);
+
+        PaintWay(graphics, Maze.Entrance, corridorsToPaint, s_mazeSolutionColor);
+
+        graphics.EndContainer(containerState);
+
+        _solutionIndex++;
+    }
+
+    private void MazeViewer_Resize(object? sender, EventArgs e)
+    {
+        Invalidate();
     }
 }
