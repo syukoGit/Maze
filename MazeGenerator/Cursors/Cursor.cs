@@ -27,7 +27,7 @@ internal class Cursor
 
     public CursorHistory ActionHistory { get; } = new ();
 
-    public string Id { get; } = new Guid().ToString();
+    public string Id { get; } = Guid.NewGuid().ToString();
 
     private (int X, int Y) Position
     {
