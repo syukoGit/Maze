@@ -25,13 +25,13 @@ internal class Cursor
 
     private (int X, int Y) _position;
 
-    protected Cursor(Maze maze, (int X, int Y) position)
+    public Cursor(Maze maze, (int X, int Y) position)
     {
         Maze = maze;
         Position = position;
     }
 
-    public Cursor(Cursor parent, Maze maze, (int X, int Y) position)
+    protected Cursor(Cursor parent, Maze maze, (int X, int Y) position)
         : this(maze, position)
     {
         Maze = maze;
