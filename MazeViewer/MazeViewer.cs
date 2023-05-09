@@ -22,7 +22,7 @@ public class MazeViewer : Control
 
     private static readonly Color s_mazeWallColor = Color.Black;
 
-    private static readonly Brush s_mazeWayColor = Brushes.White;
+    private readonly Dictionary<string, Brush> _cursorColor = new ();
 
     private readonly Timer _updateTimer = new ();
 
@@ -80,7 +80,13 @@ public class MazeViewer : Control
 
         foreach (MazeGenerationAction generationAction in Maze.GenerationHistory.Take(_generationHistoryIndex).SelectMany(static c => c))
         {
-            PaintCorridor(e.Graphics, generationAction.Position.X, generationAction.Position.Y, generationAction.Direction, s_mazeWayColor);
+            if (!_cursorColor.ContainsKey(generationAction.CursorId))
+            {
+                Random random = new (generationAction.CursorId.GetHashCode());
+                _cursorColor.Add(generationAction.CursorId, new SolidBrush(Color.FromArgb(255, random.Next(256), random.Next(256), random.Next(256))));
+            }
+
+            PaintCorridor(e.Graphics, generationAction.Position.X, generationAction.Position.Y, generationAction.Direction, _cursorColor[generationAction.CursorId]);
         }
 
         if (Maze.Solution is not null && _generationHistoryIndex >= Maze.GenerationHistory.Count)
@@ -164,7 +170,7 @@ public class MazeViewer : Control
 
         foreach (MazeGenerationAction generationAction in pointsToPaint)
         {
-            PaintCorridor(graphics, generationAction.Position.X, generationAction.Position.Y, generationAction.Direction, s_mazeWayColor);
+            PaintCorridor(graphics, generationAction.Position.X, generationAction.Position.Y, generationAction.Direction, GetCursorColor(generationAction.CursorId));
 
             if (_generationHistoryIndex < Maze.GenerationHistory.Count - 1)
             {
@@ -196,6 +202,17 @@ public class MazeViewer : Control
         graphics.EndContainer(containerState);
 
         _solutionIndex++;
+    }
+
+    private Brush GetCursorColor(string cursorId)
+    {
+        if (!_cursorColor.ContainsKey(cursorId))
+        {
+            Random random = new (cursorId.GetHashCode());
+            _cursorColor.Add(cursorId, new SolidBrush(Color.FromArgb(255, random.Next(256), random.Next(256), random.Next(256))));
+        }
+
+        return _cursorColor[cursorId];
     }
 
     private void MazeViewer_Resize(object? sender, EventArgs e)

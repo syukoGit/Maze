@@ -29,20 +29,23 @@ public class MazeGenerationHistory : IReadOnlyList<IEnumerable<MazeGenerationAct
 
     internal void AddCursorHistory(Cursor cursor)
     {
-        CursorHistory cursorHistory = cursor.ActionHistory;
-
-        for (int i = 0; i < cursorHistory.Count; i++)
+        lock (_history)
         {
-            CursorAction action = cursorHistory[i];
+            CursorHistory cursorHistory = cursor.ActionHistory;
 
-            if (_history.Count <= i)
+            for (int i = 0; i < cursorHistory.Count; i++)
             {
-                _history.Add(new ());
-            }
+                CursorAction action = cursorHistory[i];
 
-            if (_history[i].All(c => c.Position != action.Position || c.Direction != action.Direction))
-            {
-                _history[i].Add(new (action.Position, action.Direction, cursor.Id));
+                if (_history.Count <= i)
+                {
+                    _history.Add(new ());
+                }
+
+                if (_history[i].All(c => c.Position != action.Position || c.Direction != action.Direction))
+                {
+                    _history[i].Add(new (action.Position, action.Direction, cursor.Id));
+                }
             }
         }
     }

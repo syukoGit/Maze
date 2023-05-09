@@ -6,16 +6,17 @@
 
 namespace MazeGenerator.Generators;
 
+using System.Threading;
 using System.Threading.Tasks;
 using Cursors;
 
 public class DefaultMazeGenerator : IMazeGenerator
 {
     /// <inheritdoc />
-    public async Task Generate(Maze maze)
+    public async Task GenerateAsync(Maze maze, CancellationToken cancellationToken)
     {
-        var cursor = new Cursor(maze, maze.Entrance);
+        var cursor = new SplittableCursor(maze, maze.Entrance);
 
-        await cursor.RunAsync();
+        await cursor.RunAsync(cancellationToken);
     }
 }

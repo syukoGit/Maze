@@ -6,9 +6,10 @@
 
 namespace MazeGenerator.Generators;
 
+using System.Threading;
 using System.Threading.Tasks;
 
 public interface IMazeGenerator
 {
-    Task Generate(Maze maze);
+    Task GenerateAsync(Maze maze, CancellationToken cancellationToken);
 }

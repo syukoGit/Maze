@@ -13,6 +13,15 @@ internal sealed class CursorHistory : IReadOnlyList<CursorAction>
 {
     private readonly List<CursorAction> _generationHistory = new ();
 
+    public CursorHistory()
+    {
+    }
+
+    public CursorHistory(CursorHistory parentActionHistory)
+    {
+        _generationHistory.AddRange(parentActionHistory._generationHistory);
+    }
+
     /// <inheritdoc />
     public int Count => _generationHistory.Count;
 

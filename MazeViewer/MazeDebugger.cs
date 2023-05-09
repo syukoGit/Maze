@@ -11,10 +11,30 @@ using MazeGenerator.Generators;
 
 public partial class MazeDebugger : Form
 {
+    private Task? _generateTask;
+
+    private CancellationTokenSource _generateTaskCancellationTokenSource = new ();
+
     public MazeDebugger()
     {
         InitializeComponent();
+    }
 
+    private void GenerateButton_Click(object sender, EventArgs e)
+    {
+        if (_generateTask is not null)
+        {
+            _generateTaskCancellationTokenSource.Cancel();
+            _generateTaskCancellationTokenSource.Dispose();
+        }
+
+        _generateTaskCancellationTokenSource = new ();
+
+        _generateTask = GenerateMaze(_generateTaskCancellationTokenSource.Token);
+    }
+
+    private async Task GenerateMaze(CancellationToken cancellationToken)
+    {
         var random = new Random();
         const int width = 10;
         const int height = 10;
@@ -27,9 +47,7 @@ public partial class MazeDebugger : Form
 
         IMazeGenerator generator = new DefaultMazeGenerator();
 
-        Task task = generator.Generate(maze);
-
-        task.Wait();
+        await generator.GenerateAsync(maze, cancellationToken);
 
         _mazeViewer.Maze = maze;
         _mazeViewer.Invalidate();

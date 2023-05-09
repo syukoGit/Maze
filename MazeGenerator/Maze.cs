@@ -34,6 +34,27 @@ public abstract class Maze
         internal set => _maze[x, y] = value;
     }
 
+    public int Percentage
+    {
+        get
+        {
+            int count = 0;
+
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    if (this[x, y] != EDirection.NotSet && this[x, y] != EDirection.None)
+                    {
+                        count++;
+                    }
+                }
+            }
+
+            return count * 100 / (Width * Height);
+        }
+    }
+
     public IEnumerable<EDirection>? Solution { get; internal set; }
 
     public int Width { get; }

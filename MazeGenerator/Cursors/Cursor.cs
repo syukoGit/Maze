@@ -8,34 +8,49 @@ namespace MazeGenerator.Cursors;
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Extensions;
 
 internal class Cursor
 {
-    private readonly Maze _maze;
+    protected readonly Maze Maze;
+
+    protected readonly Random Random = new ();
+
+    private readonly Cursor? _parent;
 
     private readonly Stack<EDirection> _way = new ();
 
     private (int X, int Y) _position;
 
-    public Cursor(Maze maze, (int X, int Y) position)
+    protected Cursor(Maze maze, (int X, int Y) position)
     {
-        _maze = maze;
+        Maze = maze;
         Position = position;
+    }
+
+    public Cursor(Cursor parent, Maze maze, (int X, int Y) position)
+        : this(maze, position)
+    {
+        Maze = maze;
+        Position = position;
+        _parent = parent;
+        ActionHistory = new (parent.ActionHistory);
     }
 
     public CursorHistory ActionHistory { get; } = new ();
 
     public string Id { get; } = Guid.NewGuid().ToString();
 
-    private (int X, int Y) Position
+    protected (int X, int Y) Position
     {
         get => _position;
 
-        set
+        private set
         {
-            if (value.X < 0 || value.X >= _maze.Width || value.Y < 0 || value.Y >= _maze.Height)
+            if (value.X < 0 || value.X >= Maze.Width || value.Y < 0 || value.Y >= Maze.Height)
             {
                 throw new ArgumentOutOfRangeException(nameof(value), value, null);
             }
@@ -44,28 +59,89 @@ internal class Cursor
         }
     }
 
-    public Task RunAsync()
+    private IEnumerable<EDirection> EntireWay => (_parent is null
+                                                      ? _way
+                                                      : _way.Concat(_parent.EntireWay)).Reverse();
+
+    public async Task RunAsync(CancellationToken cancellationToken)
     {
         do
         {
-            if (Position == _maze.Exit)
+            if (Position == Maze.Exit)
             {
-                var solution = new List<EDirection>(_way);
-                solution.Reverse();
-                _maze.Solution = solution;
+                Maze.Solution = new List<EDirection>(EntireWay);
 
                 GoBack();
             }
             else
             {
-                Move();
+                await Action(cancellationToken);
             }
         }
         while (_way.Count > 0);
 
-        _maze.GenerationHistory.AddCursorHistory(this);
+        Maze.GenerationHistory.AddCursorHistory(this);
+    }
 
-        return Task.CompletedTask;
+    protected virtual async Task Action(CancellationToken cancellationToken)
+    {
+        await Task.Run(Move, cancellationToken);
+    }
+
+    protected EDirection GetAvailableDirections()
+    {
+        int x = Position.X;
+        int y = Position.Y;
+
+        var directions = EDirection.None;
+
+        if (x + 1 < Maze.Width && Maze[x + 1, y] == EDirection.NotSet)
+        {
+            directions |= EDirection.East;
+        }
+
+        if (x - 1 >= 0 && Maze[x - 1, y] == EDirection.NotSet)
+        {
+            directions |= EDirection.West;
+        }
+
+        if (y + 1 < Maze.Height && Maze[x, y + 1] == EDirection.NotSet)
+        {
+            directions |= EDirection.South;
+        }
+
+        if (y - 1 >= 0 && Maze[x, y - 1] == EDirection.NotSet)
+        {
+            directions |= EDirection.North;
+        }
+
+        return directions;
+    }
+
+    protected void Move()
+    {
+        lock (Maze)
+        {
+            EDirection directions = GetAvailableDirections();
+
+            if (directions == EDirection.None)
+            {
+                GoBack();
+                return;
+            }
+
+            EDirection direction = directions.GetRandomDirection(Random);
+
+            (int X, int Y) newPosition = GetNewPosition(Position, direction);
+
+            Maze[Position.X, Position.Y] |= direction;
+            Maze[newPosition.X, newPosition.Y] |= direction.GetOpposite();
+
+            _way.Push(direction);
+            ActionHistory.Add(Position, direction);
+
+            Position = newPosition;
+        }
     }
 
     private static (int X, int Y) GetNewPosition((int X, int Y) position, EDirection direction)
@@ -80,36 +156,6 @@ internal class Cursor
         };
     }
 
-    private EDirection GetAvailableDirections()
-    {
-        int x = Position.X;
-        int y = Position.Y;
-
-        var directions = EDirection.None;
-
-        if (x + 1 < _maze.Width && _maze[x + 1, y] == EDirection.NotSet)
-        {
-            directions |= EDirection.East;
-        }
-
-        if (x - 1 >= 0 && _maze[x - 1, y] == EDirection.NotSet)
-        {
-            directions |= EDirection.West;
-        }
-
-        if (y + 1 < _maze.Height && _maze[x, y + 1] == EDirection.NotSet)
-        {
-            directions |= EDirection.South;
-        }
-
-        if (y - 1 >= 0 && _maze[x, y - 1] == EDirection.NotSet)
-        {
-            directions |= EDirection.North;
-        }
-
-        return directions;
-    }
-
     private void GoBack()
     {
         if (_way.TryPop(out EDirection direction))
@@ -119,28 +165,5 @@ internal class Cursor
             ActionHistory.Add(Position, oppositeDirection);
             Position = GetNewPosition(Position, oppositeDirection);
         }
-    }
-
-    private void Move()
-    {
-        EDirection directions = GetAvailableDirections();
-
-        if (directions == EDirection.None)
-        {
-            GoBack();
-            return;
-        }
-
-        EDirection direction = directions.GetRandomDirection();
-
-        (int X, int Y) newPosition = GetNewPosition(Position, direction);
-
-        _maze[Position.X, Position.Y] |= direction;
-        _maze[newPosition.X, newPosition.Y] |= direction.GetOpposite();
-
-        _way.Push(direction);
-        ActionHistory.Add(Position, direction);
-
-        Position = newPosition;
     }
 }

@@ -12,6 +12,11 @@ using System.Linq;
 
 public static class DirectionEnumExtension
 {
+    public static int Count(this EDirection directions)
+    {
+        return directions.GetFlags().Where(static c => c != EDirection.None && c != EDirection.NotSet).Count();
+    }
+
     public static EDirection GetOpposite(this EDirection direction)
     {
         return direction switch
@@ -24,12 +29,12 @@ public static class DirectionEnumExtension
         };
     }
 
-    public static EDirection GetRandomDirection(this EDirection directions)
+    public static EDirection GetRandomDirection(this EDirection directions, Random random)
     {
         List<EDirection> flags = directions.GetFlags().Where(static c => c != EDirection.None && c != EDirection.NotSet).ToList();
 
-        int random = new Random().Next(0, flags.Count);
+        int randomDirection = random.Next(0, flags.Count);
 
-        return flags[random];
+        return flags[randomDirection];
     }
 }
