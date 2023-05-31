@@ -17,6 +17,33 @@ public static class DirectionEnumExtension
         return directions.GetFlags().Where(static c => c != EDirection.None && c != EDirection.NotSet).Count();
     }
 
+    public static (int X, int Y) GetNewPosition(this EDirection direction, (int, int) position)
+    {
+        (int x, int y) = position;
+
+        if (direction.HasFlag(EDirection.North))
+        {
+            y--;
+        }
+
+        if (direction.HasFlag(EDirection.East))
+        {
+            x++;
+        }
+
+        if (direction.HasFlag(EDirection.South))
+        {
+            y++;
+        }
+
+        if (direction.HasFlag(EDirection.West))
+        {
+            x--;
+        }
+
+        return (x, y);
+    }
+
     public static EDirection GetOpposite(this EDirection direction)
     {
         return direction switch

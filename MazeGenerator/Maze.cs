@@ -6,7 +6,11 @@
 
 namespace MazeGenerator;
 
+using System;
 using System.Collections.Generic;
+using Cursors;
+using Extensions;
+using MazeLogs;
 
 public abstract class Maze
 {
@@ -17,45 +21,38 @@ public abstract class Maze
         Width = width;
         Height = height;
         _maze = new EDirection[width, height];
+
+        Log = new MazeLog(this);
     }
 
     public required (int X, int Y) Entrance { get; init; }
 
     public required (int X, int Y) Exit { get; init; }
 
-    public MazeGenerationHistory GenerationHistory { get; } = new ();
-
     public int Height { get; }
 
-    public EDirection this[int x, int y]
-    {
-        get => _maze[x, y];
+    public EDirection this[int x, int y] => _maze[x, y];
 
-        internal set => _maze[x, y] = value;
-    }
-
-    public int Percentage
-    {
-        get
-        {
-            int count = 0;
-
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    if (this[x, y] != EDirection.NotSet && this[x, y] != EDirection.None)
-                    {
-                        count++;
-                    }
-                }
-            }
-
-            return count * 100 / (Width * Height);
-        }
-    }
+    public MazeLog Log { get; }
 
     public IEnumerable<EDirection>? Solution { get; internal set; }
 
     public int Width { get; }
+
+    public event EventHandler<MazeUpdatedEventArgs>? MazeUpdated;
+
+    internal void AddCorridor(ICursor cursor, (int X, int Y) coordinates, EDirection direction)
+    {
+        _maze[coordinates.X, coordinates.Y] |= direction;
+
+        (int x, int y) = direction.GetNewPosition(coordinates);
+        _maze[x, y] |= direction.GetOpposite();
+
+        MazeUpdated?.Invoke(this, new MazeUpdatedEventArgs
+        {
+            Coordinates = coordinates,
+            Direction = direction,
+            UpdatedBy = cursor,
+        });
+    }
 }
