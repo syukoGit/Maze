@@ -13,13 +13,13 @@ using Extensions;
 internal class SplittableCursor : Cursor
 {
     /// <inheritdoc />
-    public SplittableCursor(Maze maze, (int X, int Y) position)
+    public SplittableCursor(Maze maze, (int x, int Y) position)
         : base(maze, position)
     {
     }
 
     /// <inheritdoc />
-    private SplittableCursor(Cursor parent, Maze maze, (int X, int Y) position)
+    private SplittableCursor(Cursor parent, Maze maze, (int x, int Y) position)
         : base(parent, maze, position)
     {
     }

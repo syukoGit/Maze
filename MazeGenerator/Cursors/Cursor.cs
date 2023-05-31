@@ -13,7 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Extensions;
 
-internal class Cursor
+internal class Cursor : ICursor
 {
     protected readonly Maze Maze;
 
@@ -25,7 +25,7 @@ internal class Cursor
 
     private (int X, int Y) _position;
 
-    public Cursor(Maze maze, (int X, int Y) position)
+    protected Cursor(Maze maze, (int X, int Y) position)
     {
         Maze = maze;
         Position = position;
@@ -37,12 +37,15 @@ internal class Cursor
         Maze = maze;
         Position = position;
         _parent = parent;
-        ActionHistory = new (parent.ActionHistory);
+        ActionHistory = new CursorHistory(parent.ActionHistory);
     }
 
     public CursorHistory ActionHistory { get; } = new ();
 
     public string Id { get; } = Guid.NewGuid().ToString();
+
+    /// <inheritdoc />
+    public ICursor? Parent => _parent;
 
     protected (int X, int Y) Position
     {
@@ -61,7 +64,7 @@ internal class Cursor
 
     private IEnumerable<EDirection> EntireWay => (_parent is null
                                                       ? _way
-                                                      : _way.Concat(_parent.EntireWay)).Reverse();
+                                                      : _parent.EntireWay.Concat(_way)).Reverse();
 
     public async Task RunAsync(CancellationToken cancellationToken)
     {
@@ -79,8 +82,6 @@ internal class Cursor
             }
         }
         while (_way.Count > 0);
-
-        Maze.GenerationHistory.AddCursorHistory(this);
     }
 
     protected virtual async Task Action(CancellationToken cancellationToken)
@@ -132,28 +133,15 @@ internal class Cursor
 
             EDirection direction = directions.GetRandomDirection(Random);
 
-            (int X, int Y) newPosition = GetNewPosition(Position, direction);
+            (int X, int Y) newPosition = direction.GetNewPosition(Position);
 
-            Maze[Position.X, Position.Y] |= direction;
-            Maze[newPosition.X, newPosition.Y] |= direction.GetOpposite();
+            Maze.AddCorridor(this, Position, direction);
 
             _way.Push(direction);
             ActionHistory.Add(Position, direction);
 
             Position = newPosition;
         }
-    }
-
-    private static (int X, int Y) GetNewPosition((int X, int Y) position, EDirection direction)
-    {
-        return direction switch
-        {
-            EDirection.North => (position.X, position.Y - 1),
-            EDirection.East => (position.X + 1, position.Y),
-            EDirection.South => (position.X, position.Y + 1),
-            EDirection.West => (position.X - 1, position.Y),
-            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null),
-        };
     }
 
     private void GoBack()
@@ -163,7 +151,7 @@ internal class Cursor
             EDirection oppositeDirection = direction.GetOpposite();
 
             ActionHistory.Add(Position, oppositeDirection);
-            Position = GetNewPosition(Position, oppositeDirection);
+            Position = oppositeDirection.GetNewPosition(Position);
         }
     }
 }
