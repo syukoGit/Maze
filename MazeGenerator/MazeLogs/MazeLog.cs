@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Cursors;
 
-public class MazeLog : IReadOnlyList<GenerationStep>
+public sealed class MazeLog : IReadOnlyList<GenerationStep>
 {
     private readonly List<GenerationStep> _generationSteps = new ();
 
