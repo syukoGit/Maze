@@ -14,7 +14,7 @@ public static class DirectionEnumExtension
 {
     public static int Count(this EDirection directions)
     {
-        return directions.GetFlags().Where(static c => c != EDirection.None && c != EDirection.NotSet).Count();
+        return directions.GetFlags().Count(static c => c != EDirection.None && c != EDirection.NotSet);
     }
 
     public static (int X, int Y) GetNewPosition(this EDirection direction, (int, int) position)
