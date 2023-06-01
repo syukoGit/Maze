@@ -7,13 +7,13 @@
 namespace MazeDebugger;
 
 using System.Drawing.Drawing2D;
+using Extensions;
 using MazeGenerator;
+using MazeGenerator.MazeLogs;
 using Timer = System.Windows.Forms.Timer;
 
 public class MazeViewer : Control
 {
-    private static readonly Brush s_mazeCursorColor = Brushes.Blue;
-
     private static readonly Brush s_mazeEntranceColor = Brushes.Gold;
 
     private static readonly Brush s_mazeExitColor = Brushes.Red;
@@ -21,8 +21,6 @@ public class MazeViewer : Control
     private static readonly Brush s_mazeSolutionColor = Brushes.Green;
 
     private static readonly Color s_mazeWallColor = Color.Black;
-
-    private readonly Dictionary<string, Brush> _cursorColor = new ();
 
     private readonly Timer _updateTimer = new ();
 
@@ -37,6 +35,8 @@ public class MazeViewer : Control
         Resize += MazeViewer_Resize;
         _updateTimer.Interval = 100;
     }
+
+    public bool DisplaySolution { get; set; } = true;
 
     public Maze? Maze
     {
@@ -78,18 +78,12 @@ public class MazeViewer : Control
         e.Graphics.FillRectangle(s_mazeEntranceColor, Maze.Entrance.X * 2, Maze.Entrance.Y * 2 + 1, 1, 1);
         e.Graphics.FillRectangle(s_mazeExitColor, Maze.Exit.X * 2 + 2, Maze.Exit.Y * 2 + 1, 1, 1);
 
-        foreach (MazeGenerationAction generationAction in Maze.GenerationHistory.Take(_generationHistoryIndex).SelectMany(static c => c))
+        foreach (GenerationStep generationStep in Maze.Log.Take(_generationHistoryIndex))
         {
-            if (!_cursorColor.ContainsKey(generationAction.CursorId))
-            {
-                Random random = new (generationAction.CursorId.GetHashCode());
-                _cursorColor.Add(generationAction.CursorId, new SolidBrush(Color.FromArgb(255, random.Next(256), random.Next(256), random.Next(256))));
-            }
-
-            PaintCorridor(e.Graphics, generationAction.Position.X, generationAction.Position.Y, generationAction.Direction, _cursorColor[generationAction.CursorId]);
+            PaintCorridor(e.Graphics, generationStep.Coordinates, generationStep.Direction, new SolidBrush(generationStep.UpdatedBy.Id.ToColor()));
         }
 
-        if (Maze.Solution is not null && _generationHistoryIndex >= Maze.GenerationHistory.Count)
+        if (DisplaySolution && Maze.Solution is not null && _generationHistoryIndex >= Maze.Log.Count)
         {
             PaintWay(e.Graphics, Maze.Entrance, Maze.Solution.Take(_solutionIndex), s_mazeSolutionColor);
         }
@@ -97,8 +91,10 @@ public class MazeViewer : Control
         e.Graphics.EndContainer(containerState);
     }
 
-    private static void PaintCorridor(Graphics g, int x, int y, EDirection direction, Brush brush)
+    private static void PaintCorridor(Graphics g, (int X, int Y) position, EDirection direction, Brush brush)
     {
+        (int x, int y) = position;
+
         if (direction.HasFlag(EDirection.North))
         {
             g.FillRectangle(brush, x * 2 + 1, y * 2 - 2 + 1, 1, 3);
@@ -120,27 +116,13 @@ public class MazeViewer : Control
         }
     }
 
-    private static void PaintCursorPosition(Graphics g, int x, int y, EDirection direction)
-    {
-        (int cursorX, int cursorY) = direction switch
-        {
-            EDirection.East => (x * 2 + 3, y * 2 + 1),
-            EDirection.North => (x * 2 + 1, y * 2 - 1),
-            EDirection.South => (x * 2 + 1, y * 2 + 3),
-            EDirection.West => (x * 2 - 1, y * 2 + 1),
-            _ => throw new ArgumentOutOfRangeException(nameof(direction)),
-        };
-
-        g.FillRectangle(s_mazeCursorColor, cursorX, cursorY, 1, 1);
-    }
-
     private static void PaintWay(Graphics g, (int, int) startPosition, IEnumerable<EDirection> way, Brush color)
     {
         (int x, int y) = startPosition;
 
         foreach (EDirection direction in way)
         {
-            PaintCorridor(g, x, y, direction, color);
+            PaintCorridor(g, (x, y), direction, color);
 
             (x, y) = direction switch
             {
@@ -155,32 +137,45 @@ public class MazeViewer : Control
 
     private void DrawMazeOnUpdateTimerTick(object? sender, EventArgs e)
     {
-        if (Maze?.GenerationHistory is null || _generationHistoryIndex >= Maze.GenerationHistory.Count)
+        if (Maze?.Log is null || _generationHistoryIndex >= Maze.Log.Count)
         {
-            _updateTimer.Tick -= DrawMazeOnUpdateTimerTick;
-            _updateTimer.Tick += DrawSolutionOnUpdateTimerTick;
+            if (DisplaySolution)
+            {
+                _updateTimer.Tick -= DrawMazeOnUpdateTimerTick;
+                _updateTimer.Tick += DrawSolutionOnUpdateTimerTick;
+            }
+            else
+            {
+                _updateTimer.Stop();
+            }
+
             return;
         }
+
+        var cursorIds = new List<string>();
 
         Graphics graphics = CreateGraphics();
 
         GraphicsContainer containerState = graphics.BeginContainer(DestRect, SrcRect, GraphicsUnit.Pixel);
 
-        IEnumerable<MazeGenerationAction> pointsToPaint = Maze.GenerationHistory[_generationHistoryIndex];
-
-        foreach (MazeGenerationAction generationAction in pointsToPaint)
+        do
         {
-            PaintCorridor(graphics, generationAction.Position.X, generationAction.Position.Y, generationAction.Direction, GetCursorColor(generationAction.CursorId));
+            GenerationStep generationStep = Maze.Log[_generationHistoryIndex];
 
-            if (_generationHistoryIndex < Maze.GenerationHistory.Count - 1)
+            if (cursorIds.Contains(generationStep.UpdatedBy.Id.ToString()))
             {
-                PaintCursorPosition(graphics, generationAction.Position.X, generationAction.Position.Y, generationAction.Direction);
+                break;
             }
+
+            cursorIds.Add(generationStep.UpdatedBy.Id.ToString());
+
+            PaintCorridor(graphics, generationStep.Coordinates, generationStep.Direction, new SolidBrush(generationStep.UpdatedBy.Id.ToColor()));
+
+            _generationHistoryIndex++;
         }
+        while (_generationHistoryIndex < Maze.Log.Count);
 
         graphics.EndContainer(containerState);
-
-        _generationHistoryIndex++;
     }
 
     private void DrawSolutionOnUpdateTimerTick(object? sender, EventArgs e)
@@ -202,17 +197,6 @@ public class MazeViewer : Control
         graphics.EndContainer(containerState);
 
         _solutionIndex++;
-    }
-
-    private Brush GetCursorColor(string cursorId)
-    {
-        if (!_cursorColor.ContainsKey(cursorId))
-        {
-            Random random = new (cursorId.GetHashCode());
-            _cursorColor.Add(cursorId, new SolidBrush(Color.FromArgb(255, random.Next(256), random.Next(256), random.Next(256))));
-        }
-
-        return _cursorColor[cursorId];
     }
 
     private void MazeViewer_Resize(object? sender, EventArgs e)
