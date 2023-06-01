@@ -19,7 +19,7 @@ internal class SplittableCursor : Cursor
     }
 
     /// <inheritdoc />
-    internal SplittableCursor(Cursor parent, Maze maze, (int x, int Y) position)
+    private SplittableCursor(Cursor parent, Maze maze, (int x, int Y) position)
         : base(parent, maze, position)
     {
     }
@@ -29,8 +29,8 @@ internal class SplittableCursor : Cursor
     {
         if (GetAvailableDirections().Count() > 1 && Random.Next(100) < 5)
         {
-            var child1 = new Cursor(this, Maze, Position);
-            var child2 = new Cursor(this, Maze, Position);
+            var child1 = new SplittableCursor(this, Maze, Position);
+            var child2 = new SplittableCursor(this, Maze, Position);
 
             Task t1 = child1.RunAsync(cancellationToken);
             Task t2 = child2.RunAsync(cancellationToken);
@@ -39,7 +39,7 @@ internal class SplittableCursor : Cursor
         }
         else
         {
-            Move();
+            await base.Action(cancellationToken);
         }
     }
 }

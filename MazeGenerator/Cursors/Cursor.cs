@@ -116,7 +116,17 @@ internal class Cursor : ICursor
         return directions;
     }
 
-    protected void Move()
+    private void GoBack()
+    {
+        if (_way.TryPop(out EDirection direction))
+        {
+            EDirection oppositeDirection = direction.GetOpposite();
+
+            Position = oppositeDirection.GetNewPosition(Position);
+        }
+    }
+
+    private void Move()
     {
         lock (Maze)
         {
@@ -137,16 +147,6 @@ internal class Cursor : ICursor
             _way.Push(direction);
 
             Position = newPosition;
-        }
-    }
-
-    private void GoBack()
-    {
-        if (_way.TryPop(out EDirection direction))
-        {
-            EDirection oppositeDirection = direction.GetOpposite();
-
-            Position = oppositeDirection.GetNewPosition(Position);
         }
     }
 }
