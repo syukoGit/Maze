@@ -62,9 +62,9 @@ internal class Cursor : ICursor
         }
     }
 
-    private IEnumerable<EDirection> EntireWay => (_parent is null
-                                                      ? _way
-                                                      : _parent.EntireWay.Concat(_way)).Reverse();
+    private IEnumerable<EDirection> EntireWay => _parent is null
+                                                     ? _way
+                                                     : _way.Concat(_parent.EntireWay);
 
     public async Task RunAsync(CancellationToken cancellationToken)
     {
@@ -72,7 +72,7 @@ internal class Cursor : ICursor
         {
             if (Position == Maze.Exit)
             {
-                Maze.Solution = new List<EDirection>(EntireWay);
+                Maze.Solution = new List<EDirection>(EntireWay.Reverse());
 
                 GoBack();
             }
