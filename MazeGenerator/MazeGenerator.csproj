@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <SignAssembly>false</SignAssembly>
     <ApplicationIcon />
     <OutputType>Library</OutputType>
@@ -12,6 +12,7 @@
     <Authors>syuko</Authors>
     <RepositoryUrl>https://github.com/syukoGit/Maze</RepositoryUrl>
     <PackageTags>maze;mazegenerator;mazerunner;labyrinthe</PackageTags>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
