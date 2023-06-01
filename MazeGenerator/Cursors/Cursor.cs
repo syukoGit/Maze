@@ -31,18 +31,15 @@ internal class Cursor : ICursor
         Position = position;
     }
 
-    protected Cursor(Cursor parent, Maze maze, (int X, int Y) position)
+    internal Cursor(Cursor parent, Maze maze, (int X, int Y) position)
         : this(maze, position)
     {
         Maze = maze;
         Position = position;
         _parent = parent;
-        ActionHistory = new CursorHistory(parent.ActionHistory);
     }
 
-    public CursorHistory ActionHistory { get; } = new ();
-
-    public string Id { get; } = Guid.NewGuid().ToString();
+    public Guid Id { get; } = Guid.NewGuid();
 
     /// <inheritdoc />
     public ICursor? Parent => _parent;
@@ -138,7 +135,6 @@ internal class Cursor : ICursor
             Maze.AddCorridor(this, Position, direction);
 
             _way.Push(direction);
-            ActionHistory.Add(Position, direction);
 
             Position = newPosition;
         }
@@ -150,7 +146,6 @@ internal class Cursor : ICursor
         {
             EDirection oppositeDirection = direction.GetOpposite();
 
-            ActionHistory.Add(Position, oppositeDirection);
             Position = oppositeDirection.GetNewPosition(Position);
         }
     }

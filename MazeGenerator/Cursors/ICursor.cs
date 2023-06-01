@@ -6,9 +6,11 @@
 
 namespace MazeGenerator.Cursors;
 
+using System;
+
 public interface ICursor
 {
-    public string Id { get; }
+    public Guid Id { get; }
 
     public ICursor? Parent { get; }
 }
