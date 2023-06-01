@@ -7,6 +7,7 @@
 namespace MazeDebugger;
 
 using MazeGenerator;
+using MazeGenerator.Cursors;
 using MazeGenerator.Generators;
 
 public partial class MazeDebugger : Form
@@ -28,7 +29,7 @@ public partial class MazeDebugger : Form
             _generateTaskCancellationTokenSource.Dispose();
         }
 
-        _generateTaskCancellationTokenSource = new ();
+        _generateTaskCancellationTokenSource = new CancellationTokenSource();
 
         _generateTask = GenerateMaze(_generateTaskCancellationTokenSource.Token);
     }
@@ -36,8 +37,8 @@ public partial class MazeDebugger : Form
     private async Task GenerateMaze(CancellationToken cancellationToken)
     {
         var random = new Random();
-        const int width = 10;
-        const int height = 10;
+        int width = (int) _widthBox.Value;
+        int height = (int) _heightBox.Value;
 
         var maze = new RectangularMaze(width, height)
         {
@@ -51,5 +52,10 @@ public partial class MazeDebugger : Form
 
         _mazeViewer.Maze = maze;
         _mazeViewer.Invalidate();
+
+        foreach (ICursor cursor in maze.Log.Cursors)
+        {
+            _cursorsTreeView.Nodes.Add(cursor.Id.ToString());
+        }
     }
 }
