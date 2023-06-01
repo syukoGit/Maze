@@ -6,6 +6,7 @@
 
 namespace MazeDebugger;
 
+using Extensions;
 using MazeGenerator;
 using MazeGenerator.Cursors;
 using MazeGenerator.Generators;
@@ -19,6 +20,31 @@ public partial class MazeDebugger : Form
     public MazeDebugger()
     {
         InitializeComponent();
+    }
+
+    private void AddCursorsToTreeView(IEnumerable<ICursor> cursors)
+    {
+        IEnumerable<ICursor> enumerable = cursors.ToList();
+
+        Dictionary<Guid, TreeNode> cursorNodes = enumerable.ToDictionary(static c => c.Id, static c => new TreeNode(c.Id.ToString())
+        {
+            BackColor = c.Id.ToColor(),
+        });
+
+        foreach (ICursor cursor in enumerable)
+        {
+            TreeNode node = cursorNodes[cursor.Id];
+
+            if (cursor.Parent != null)
+            {
+                TreeNode parentNode = cursorNodes[cursor.Parent.Id];
+                parentNode.Nodes.Add(node);
+            }
+            else
+            {
+                _cursorsTreeView.Nodes.Add(node);
+            }
+        }
     }
 
     private void GenerateButton_Click(object sender, EventArgs e)
@@ -53,9 +79,6 @@ public partial class MazeDebugger : Form
         _mazeViewer.Maze = maze;
         _mazeViewer.Invalidate();
 
-        foreach (ICursor cursor in maze.Log.Cursors)
-        {
-            _cursorsTreeView.Nodes.Add(cursor.Id.ToString());
-        }
+        AddCursorsToTreeView(maze.Log.Cursors);
     }
 }
